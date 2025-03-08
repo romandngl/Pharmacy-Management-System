@@ -1,17 +1,16 @@
-const express = require('express');
-const mongoose = require('mongoose');
 require('dotenv').config();
-
-const authRoutes = require('./routes/auth');
+const express = require('express');
+const connectDB = require('./config/db');
 
 const app = express();
-app.use(express.json());
+const port = process.env.PORT || 3000;
 
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB Connected'))
-    .catch(err => console.error('MongoDB Connection Failed:', err));
+connectDB();
 
-app.use('/api/auth', authRoutes);
+app.get('/', (req, res) => {
+  res.send(process.env.MESSAGE || 'Hello, Backend!');
+});
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
