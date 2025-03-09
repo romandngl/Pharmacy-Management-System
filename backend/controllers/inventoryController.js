@@ -110,7 +110,8 @@ const addToInventory = async (req, res) => {
 // Update Inventory Stock
 const updateInventory = async (req, res) => {
     try {
-        const { medicineId, quantity } = req.body;
+        const { medicineId } = req.params;
+        const { quantity } = req.body;
 
         // Find inventory item
         let inventoryItem = await Inventory.findOne({ medicine: medicineId });
@@ -129,7 +130,7 @@ const updateInventory = async (req, res) => {
 // Reorder Medicine (if stock is low)
 const reorderMedicine = async (req, res) => {
     try {
-        const { medicineId } = req.body;
+        const { medicineId } = req.params;
 
         let medicine = await Medicine.findById(medicineId);
         if (!medicine) return res.status(404).json({ message: 'Medicine not found' });

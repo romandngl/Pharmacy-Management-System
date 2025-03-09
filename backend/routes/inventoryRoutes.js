@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { addMedicine, getMedicine, deleteMedicine, editMedicine, addToInventory, updateInventory, reorderMedicine, generateStockReport } = require('../controllers/inventoryController');
 
+router.put('/medicine/:medicineId', editMedicine);
+router.get('/medicine/:medicineId?', getMedicine);
+router.delete('/medicine/:medicineId', deleteMedicine);
 router.post('/medicine', addMedicine);
-router.get('/medicine/:id?', getMedicine);
-router.delete('/medicine/:id', deleteMedicine);
-router.put('/medicine/:id', editMedicine);
-router.post('/inventory', addToInventory);
-router.put('/inventory/:id', updateInventory);
+router.put('/inventory/:medicineId', updateInventory);
 router.post('/inventory/reorder', reorderMedicine);
 router.get('/inventory/report', generateStockReport);
+router.post('/inventory', addToInventory);
 
 module.exports = router;
 
