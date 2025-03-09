@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const salesSchema = new mongoose.Schema({
     medicine: { type: mongoose.Schema.Types.ObjectId, ref: 'Medicine', required: true },
     quantitySold: { type: Number, required: true },

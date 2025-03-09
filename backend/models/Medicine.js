@@ -1,8 +1,10 @@
+const mongoose = require('mongoose');
+
 const medicineSchema = new mongoose.Schema({
     name: { type: String, required: true },
     category: { type: String, required: true },
-    expiryDate: { type: Date, required: true },
-    stockLevel: { type: Number, required: true },
-  }, { timestamps: true });
-  
-  module.exports = mongoose.model('Medicine', medicineSchema);
+    reorderLevel: { type: Number, required: true },
+    isDeleted: { type: Boolean, default: false }
+});
+
+module.exports = mongoose.model('Medicine', medicineSchema);

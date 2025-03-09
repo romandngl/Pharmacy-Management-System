@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const invoiceSchema = new mongoose.Schema({
     sales: { type: mongoose.Schema.Types.ObjectId, ref: 'Sales', required: true },
     patient: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient', required: true },

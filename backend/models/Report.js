@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const reportSchema = new mongoose.Schema({
     admin: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', required: true },
     type: { type: String, required: true },

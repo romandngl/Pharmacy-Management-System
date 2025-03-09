@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const pharmacistSchema = new mongoose.Schema({
     inventory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Medicine' }],
   }, { timestamps: true });
