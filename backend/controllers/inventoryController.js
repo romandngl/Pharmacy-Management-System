@@ -1,6 +1,6 @@
 const Inventory = require('../models/Inventory');
 const Medicine = require('../models/Medicine');
-
+const verifyToken = require('../middleware/authMiddleware');
 const getMedicine = async (req, res) => {
     try {
         const { medicineId } = req.params;
