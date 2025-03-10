@@ -1,11 +1,15 @@
 import { useState } from 'react'
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { HomePage } from './information/HomePage';
+import { HomePage } from './landing/HomePage';
 import { HomeLayout } from './layout/HomeLayout';
-import { AboutPage } from './information/AboutPage';
+import { AboutPage } from './landing/AboutPage';
 import { SignUpPage } from './auth/SignUpPage';
 import { SignInPage } from './auth/SignInPage';
 import { AuthLayout } from './layout/AuthLayout';
+import GetStarted from './landing/GetStarted';
+import { ProtectedRoute } from '../configuration/ProtectedRoute';
+import { PatientDashboard } from './pages/patent/PatientDashboard';
+import { PatientLayout } from './layout/PatientLayout';
 function App() {
   const router = createBrowserRouter([
     {
@@ -16,6 +20,8 @@ function App() {
           path: "/", element: <HomePage />
         }, {
           path: "/about", element: <AboutPage />
+        }, {
+          path: "/get-started", element: <GetStarted />
         }
       ]
     }, {
@@ -23,10 +29,22 @@ function App() {
       element: <AuthLayout />,
       children: [
         {
-          path: "/auth/signup", element: <SignUpPage />
+          path: "/auth/patient/signup", element: <SignUpPage />
         },
         {
           path: "/auth/signin", element: <SignInPage />
+        }
+      ]
+    }
+    ,
+    {
+      path: "/patient",
+      element: <PatientLayout />,
+      children: [
+        {
+          path: "/patient/dashboard", element: <ProtectedRoute>
+            <PatientDashboard />
+          </ProtectedRoute>
         }
       ]
     }

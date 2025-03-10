@@ -16,7 +16,7 @@ const InfoNavbar = () => {
             <Link to="/contact" className="text-white hover:text-gray-300">Contact</Link>
           </li>
           <li>
-            <Link to="/auth/signin" className="text-white hover:text-gray-300">Sign In</Link>
+            <Link to="/get-started" className="text-white hover:text-gray-300">Get Started</Link>
           </li>
         </ul>
       </div>
