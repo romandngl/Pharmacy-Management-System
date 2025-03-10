@@ -10,6 +10,14 @@ import GetStarted from './landing/GetStarted';
 import { ProtectedRoute } from '../configuration/ProtectedRoute';
 import { PatientDashboard } from './pages/patent/PatientDashboard';
 import { PatientLayout } from './layout/PatientLayout';
+import { PatientSchedule } from './pages/patent/schedule/PatientSchedule';
+import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { PharmacistDashboard } from './pages/pharmacist/PharmacistDashboard';
+import { AdminLayout } from './layout/AdminLayout';
+import { PharmacistLayout } from './layout/PharmacistLayout';
+import { AdminInventory } from './pages/admin/inventory/AdminInventory';
+import { AdminMedicine } from './pages/admin/medcine/AdminMedicine';
+import { AddMedicine } from './pages/admin/medcine/AddMedicine';
 function App() {
   const router = createBrowserRouter([
     {
@@ -39,12 +47,44 @@ function App() {
     ,
     {
       path: "/patient",
-      element: <PatientLayout />,
+      element: <ProtectedRoute isProtected={true}><PatientLayout />  </ProtectedRoute>,
       children: [
         {
-          path: "/patient/dashboard", element: <ProtectedRoute isProtected={true}>
+          path: "/patient/dashboard", element:
             <PatientDashboard />
-          </ProtectedRoute>
+        },
+        {
+          path: "/patient/schedule", element:
+            <PatientSchedule />
+        }
+      ]
+    }
+    , {
+      path: "/admin",
+      element: <ProtectedRoute isProtected={true}><AdminLayout /></ProtectedRoute>,
+      children: [
+        {
+          path: "/admin/dashboard", element: <AdminDashboard />
+        },
+        {
+          path: "/admin/inventory", element: <AdminInventory />
+        },
+        {
+          path: "/admin/medicine", element: <AdminMedicine />,
+
+        },
+        {
+          path: "/admin/medicine/add", element: <AddMedicine />
+        }
+
+      ]
+    },
+    {
+      path: "/pharmacist",
+      element: <ProtectedRoute isProtected={true}><PharmacistLayout /></ProtectedRoute>,
+      children: [
+        {
+          path: "/pharmacist/dashboard", element: <PharmacistDashboard />
         }
       ]
     }
