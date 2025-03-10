@@ -1,10 +1,11 @@
 import axios from 'axios'
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import API_URL from "../../configuration/Api"
 import Cookies from 'js-cookie'
 
 export const SignInPage = () => {
+    const navigate = useNavigate()
     const [data, setData] = useState({
         email: '',
         password: ''
@@ -59,15 +60,36 @@ export const SignInPage = () => {
             console.log(res_data);
             alert(res_data.message);
             Cookies.set('token', res_data.token);
+            const token = res_data.token
+            const userProfile = await axios.get(API_URL + "/auth/profile", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            console.log("User Profile", userProfile.data.user)
+            const redirect_to = redirect(userProfile?.data?.user?.role)
+            navigate(redirect_to);
+
             setData({
                 email: '',
                 password: ''
             })
         } catch (error) {
             console.log(error)
-            alert(error);
+            alert(error.response.data.message);
         }
     };
+
+    function redirect(user_role) {
+        if (user_role === "patient") {
+            return "/patient/dashboard";
+        } else if (user_role === "admin") {
+            return "/admin/dashboard";
+        }
+        else if (user_role === "pharmacist") {
+            return "/pharmacist/dashboard";
+        }
+    }
 
     return (
         <div className="container w-auto bg-slate-100 rounded-xl p-6 flex flex-col items-center">

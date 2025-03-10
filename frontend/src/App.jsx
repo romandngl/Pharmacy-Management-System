@@ -14,7 +14,7 @@ function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <HomeLayout />,
+      element: <ProtectedRoute isPublic={true}><HomeLayout /></ProtectedRoute>,
       children: [
         {
           path: "/", element: <HomePage />
@@ -26,7 +26,7 @@ function App() {
       ]
     }, {
       path: "/auth",
-      element: <AuthLayout />,
+      element: <ProtectedRoute isPublic={true}> <AuthLayout /></ProtectedRoute>,
       children: [
         {
           path: "/auth/patient/signup", element: <SignUpPage />
@@ -42,7 +42,7 @@ function App() {
       element: <PatientLayout />,
       children: [
         {
-          path: "/patient/dashboard", element: <ProtectedRoute>
+          path: "/patient/dashboard", element: <ProtectedRoute isProtected={true}>
             <PatientDashboard />
           </ProtectedRoute>
         }

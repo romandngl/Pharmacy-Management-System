@@ -17,16 +17,14 @@ export const useAuth = () => {
         }
         const fetchUser = async () => {
             try {
-                const res = await axios.get(API_URL + "/auth/user", {
+                const res = await axios.get(API_URL + "/auth/profile", {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 })
                 setUser(res.data);
-
             } catch (error) {
                 console.log("Error fetching user", error);
-                Cookies.remove('token');
                 navigate("/");
             } finally {
                 setLoading(false);
