@@ -21,6 +21,8 @@ import { AddMedicine } from './pages/admin/medcine/AddMedicine';
 import { EditMedicine } from './pages/admin/medcine/EditMedicine';
 import { AddInventory } from './pages/admin/inventory/AddInventory';
 import ContactPage from './landing/ContactPage';
+import PharmacistMedicine from './pages/pharmacist/medicine/PharmacistMedicine';
+import PharmacistInventory from './pages/pharmacist/inventory/PharmacistInventory';
 function App() {
   const router = createBrowserRouter([
     {
@@ -99,15 +101,20 @@ function App() {
           path: "/pharmacist/dashboard", element: <PharmacistDashboard />
         },
         {
-          path: "/pharmacist/medicine", element: <AdminMedicine />,
-
+          path: "/pharmacist/medicine", element: <PharmacistMedicine />,
         },
         {
           path: "/pharmacist/medicine/add", element: <AddMedicine />
         },
         {
           path: "/pharmacist/medicine/edit/:id", element: <EditMedicine />
-        }
+        },
+        {
+          path: "/pharmacist/inventory", element: <PharmacistInventory />
+        },
+        {
+          path: "/pharmacist/inventory/add", element: <AddInventory />
+        },
       ]
     }
   ])

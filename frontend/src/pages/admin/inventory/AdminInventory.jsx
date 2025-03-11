@@ -11,7 +11,7 @@ export const AdminInventory = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [formData, setFormData] = useState({ medicineId: '', quantity: '',medicineName:'' });
+    const [formData, setFormData] = useState({ medicineId: '', quantity: '',medicineName:'',createdAt:'' });
     console.log(inventory)
     useEffect(() => {
         const fetchInventory = async () => {
@@ -34,7 +34,7 @@ export const AdminInventory = () => {
     }
 
     const handleEdit = (item) => {
-        setFormData({ medicineId: item.medicine._id, quantity: Number(item.quantity),medicineName:item.medicine.name });
+        setFormData({ medicineId: item.medicine._id, quantity: Number(item.quantity),medicineName:item.medicine.name,createdAt:item.medicine.createdAt });
         setShowModal(true);
     };
 
@@ -52,7 +52,8 @@ export const AdminInventory = () => {
         try {
             const sendData = {
                 medicineId: formData.medicineId,
-                quantity: formData.quantity
+                quantity: formData.quantity,
+                createdAt:formData.createdAt
             }
             const res = await axios.put(`${API_URL}/inventory/${formData.medicineId}`,sendData);
             alert(res.data.message);
