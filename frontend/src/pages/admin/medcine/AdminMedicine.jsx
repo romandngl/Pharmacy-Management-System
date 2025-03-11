@@ -1,12 +1,12 @@
 import axios from 'axios'
 import React, { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import API_URL from '../../../../configuration/Api'
 import { getDateString } from "../../../../utils/ModifyDate"
 
 export const AdminMedicine = () => {
     const [medicine, setMedicine] = React.useState([])
-
+    const navigate = useNavigate();
     useEffect(() => {
         getAllMedicine().then(data => setMedicine(data)).catch((error) => console.log(error))
     }, [])
@@ -19,6 +19,33 @@ export const AdminMedicine = () => {
         } catch (error) {
             console.log(error)
         }
+    }
+
+    function handleDelete(id) {
+        if (!id) {
+            alert("Invalid ID")
+        }
+        const confirm = window.confirm("Are you sure you want to delete this medicine?")
+        if (!confirm) {
+            return;
+        }
+        axios.delete(API_URL + "/medicine/" + id)
+            .then(res => {
+                console.log(res?.data?.message)
+                alert("Medicine deleted successfully")
+                setMedicine(medicine.filter(med => med._id !== id))
+            }).catch(err => {
+                console.log(err)
+            })
+    }
+
+    function handleEdit(id) {
+        if (!id) {
+            alert("Invalid ID")
+            return
+        }
+        // Redirect to edit page
+        navigate("/admin/medicine/edit/" + id)
     }
 
     return (
@@ -54,16 +81,16 @@ export const AdminMedicine = () => {
                             <tbody>
                                 {medicine.length > 0 ? (
                                     medicine.map((medicine, index) => (
-                                        <tr key={medicine.id} className="border-b hover:bg-gray-50">
+                                        <tr key={medicine._id} className="border-b hover:bg-gray-50">
                                             <td className="px-6 py-3 text-sm text-gray-700">{index + 1}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine.name}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine.category}</td>
+                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine.name ?? "N/A"}</td>
+                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine.category ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700"> {getDateString(medicine.expiryDate)}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine.stockLevel}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine.reorderLevel}</td>
+                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine.stockLevel ?? "N/A"}</td>
+                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine.reorderLevel ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700 space-x-4">
-                                                <button>Edit</button>
-                                                <button>Delete</button>
+                                                <button onClick={e => handleEdit(medicine?._id)}>Edit</button>
+                                                <button onClick={e => handleDelete(medicine?._id)}>Delete</button>
                                             </td>
 
 

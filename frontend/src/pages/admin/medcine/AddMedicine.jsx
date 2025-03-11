@@ -65,7 +65,7 @@ export const AddMedicine = () => {
             const res_data = await res.data;
             console.log(res_data);
             alert(res_data.message);
-            navigate("/admin/medicine-list"); // Redirect to the list page after successful submission
+            // navigate("/admin/medicine"); // Redirect to the list page after successful submission
             setData({
                 name: '',
                 category: '',

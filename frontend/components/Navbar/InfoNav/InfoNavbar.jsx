@@ -1,27 +1,23 @@
-import { Link } from "react-router-dom";
+import React from 'react'
+import { Link } from 'react-router-dom'
 
 const InfoNavbar = () => {
   return (
-    <nav className="bg-gray-800 p-4 shadow-lg">
-      <div className="container mx-auto flex justify-between items-center">
-        <div className="text-white text-xl font-bold">MyWebsite</div>
-        <ul className="flex space-x-6">
-          <li>
-            <Link to="/" className="text-white hover:text-gray-300">Home</Link>
-          </li>
-          <li>
-            <Link to="/about" className="text-white hover:text-gray-300">About</Link>
-          </li>
-          <li>
-            <Link to="/contact" className="text-white hover:text-gray-300">Contact</Link>
-          </li>
-          <li>
-            <Link to="/get-started" className="text-white hover:text-gray-300">Get Started</Link>
-          </li>
-        </ul>
+    <nav className='flex justify-around w-full  bg-green-400 h-40'>
+      <div>
+        My Website
       </div>
+      <ul>
+        <li className="px-2">
+          <Link to="/" className="text-black hover:text-yellow-300 transition duration-300 ease-in-out">Home</Link>
+        </li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+      </ul>
     </nav>
-  );
-};
+  )
+}
 
-export default InfoNavbar;
+export default InfoNavbar

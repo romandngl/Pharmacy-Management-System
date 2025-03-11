@@ -1,0 +1,142 @@
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import API_URL from '../../../../configuration/Api';
+
+export const AddInventory = () => {
+    const navigate = useNavigate();
+    const [medicineIds,setMedicineIds] = useState('');
+    const [data, setData] = useState({
+        medicineId: '',
+        quantity: '',
+        expiryDate: ''
+    });
+
+    const [error, setError] = useState({
+        errorMedicineId: "",
+        errorQuantity: "",
+        errorExpiryDate: "",
+        errorServer: ""
+    });
+
+    useEffect(()=>{
+        const fetchMedicines = async () => {
+            try {
+                const response = await axios.get(`${API_URL}/medicine`);
+                setMedicineIds(response?.data.medicines);
+                console.log(response.data.medicines);
+            } catch (err) {
+                setError('Failed to fetch medicines data.');
+            }
+        };
+        fetchMedicines();
+    },[])
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setData({
+            ...data,
+            [name]: value
+        });
+        setError({
+            ...error,
+            [name === "medicineId" ? "errorMedicineId" : name === "quantity" ? "errorQuantity" : "errorExpiryDate"]: ""
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const { medicineId, quantity, expiryDate } = data;
+
+        let errors = {
+            errorMedicineId: "",
+            errorQuantity: "",
+            errorExpiryDate: "",
+            errorServer: ""
+        };
+
+        if (medicineId === "") {
+            errors.errorMedicineId = "Medicine is required";
+        }
+
+        if (quantity === "") {
+            errors.errorQuantity = "Quantity is required";
+        }
+
+        if (expiryDate === "") {
+            errors.errorExpiryDate = "Expiry date is required";
+        }
+
+        if (errors.errorMedicineId || errors.errorQuantity || errors.errorExpiryDate) {
+            setError(errors);
+            return;
+        }
+
+        setError(errors);
+        console.log(data);
+        try {
+            const res = await axios.post(API_URL + '/inventory', data);
+            const res_data = await res.data;
+            console.log(res_data);
+            alert(res_data.message);
+            navigate("/admin/inventory"); // Redirect to the inventory list page after successful submission
+            setData({
+                medicineId: '',
+                quantity: '',
+                expiryDate: ''
+            });
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    };
+
+    return (
+        <div className="container min-h-screen w-auto bg-slate-100 rounded-xl p-6 flex flex-col items-center">
+            <div className="mt-6 w-full max-w-md p-6 shadow-lg border rounded-lg">
+                <h1 className="text-3xl font-bold">Add Inventory</h1>
+                <p className="text-gray-600 mt-2">Fill out the form to add a new inventory item.</p>
+                <form onSubmit={handleSubmit}>
+                   
+                    <select name="medicineId"  onChange={handleChange}  className="border p-2 w-full mt-2 rounded-md" id="">
+                        <option value="">Select Medicine</option>
+                        {
+                            medicineIds && medicineIds.map((medicine,index)=>(
+                                <option key={index} value={medicine._id}>{medicine.name}</option>
+                            ))
+                        }
+                    </select>
+                    <span className="text-red-500 text-xs font-bold">{error.errorMedicineId}</span>
+
+                    <input
+                        type="number"
+                        placeholder="Quantity"
+                        name="quantity"
+                        className="border p-2 w-full mt-2 rounded-md"
+                        onChange={handleChange}
+                        value={data.quantity}
+                    />
+                    <span className="text-red-500 text-xs font-bold">{error.errorQuantity}</span>
+
+                    <input
+                        type="date"
+                        placeholder="Expiry Date"
+                        name="expiryDate"
+                        className="border p-2 w-full mt-2 rounded-md"
+                        onChange={handleChange}
+                        value={data.expiryDate}
+                    />
+                    <span className="text-red-500 text-xs font-bold">{error.errorExpiryDate}</span>
+
+                    <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded w-full hover:bg-blue-700">
+                        Add Inventory
+                    </button>
+                </form>
+
+                <div className="w-full flex-col items-center flex justify-center py-4">
+                    <p>Want to go back? <Link to="/admin/inventory"> <span className="text-blue-500">Inventory List</span></Link></p>
+                </div>
+            </div>
+        </div>
+    );
+};

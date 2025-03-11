@@ -12,6 +12,7 @@ export const fetchUser = async (token) => {
         return res.data; // Return the user data
     } catch (error) {
         console.error("Error fetching user", error);
+        Cookies.remove('token');
         return null;  // Reset user on failure
     }
 };

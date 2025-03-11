@@ -1,0 +1,134 @@
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import API_URL from '../../../../configuration/Api';
+
+export const EditMedicine = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [data, setData] = useState({
+        name: '',
+        category: '',
+        reorderLevel: ''
+    });
+
+    console.log(data)
+
+
+    const [error, setError] = useState({
+        errorName: "",
+        errorCategory: "",
+        errorReorderLevel: "",
+        errorServer: ""
+    });
+
+    useEffect(() => {
+        const fetchMedicine = async () => {
+            try {
+                const res = await axios.get(`${API_URL}/medicine/${id}`);
+                console.log(res?.data.medicines)
+                setData(res?.data.medicines);
+            } catch (error) {
+                console.log(error);
+                alert("Failed to fetch medicine details");
+            }
+        };
+        fetchMedicine();
+    }, [id]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setData({
+            ...data,
+            [name]: value
+        });
+        setError({
+            ...error,
+            [name === "name" ? "errorName" : name === "category" ? "errorCategory" : "errorReorderLevel"]: ""
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const { name, category, reorderLevel } = data;
+
+        let errors = {
+            errorName: "",
+            errorCategory: "",
+            errorReorderLevel: "",
+            errorServer: ""
+        };
+
+        if (name === "") errors.errorName = "Name is required";
+        if (category === "") errors.errorCategory = "Category is required";
+        if (reorderLevel === "") errors.errorReorderLevel = "Reorder level is required";
+
+        if (errors.errorName || errors.errorCategory || errors.errorReorderLevel) {
+            setError(errors);
+            return;
+        }
+
+        try {
+            const res = await axios.put(`${API_URL}/medicine/${id}`, data);
+            alert(res.data.message);
+            // navigate("/admin/medicine");
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    };
+
+    return (
+        <div className="container min-h-screen w-auto bg-slate-100 rounded-xl p-6 flex flex-col items-center">
+            <div className="mt-6 w-full max-w-md p-6 shadow-lg border rounded-lg">
+                <h1 className="text-3xl font-bold">Edit Medicine</h1>
+                <p className="text-gray-600 mt-2">Modify the medicine details.</p>
+
+                {data.name !== undefined ? ( // Render form only when data is loaded
+                    <form onSubmit={handleSubmit}>
+                        <input
+                            type="text"
+                            placeholder="Medicine Name"
+                            name="name"
+                            className="border p-2 w-full mt-2 rounded-md"
+                            onChange={handleChange}
+                            value={data.name || ''}
+                        />
+                        <span className="text-red-500 text-xs font-bold">{error.errorName}</span>
+
+                        <input
+                            type="text"
+                            placeholder="Category"
+                            name="category"
+                            className="border p-2 w-full mt-2 rounded-md"
+                            onChange={handleChange}
+                            value={data.category || ''}
+                        />
+                        <span className="text-red-500 text-xs font-bold">{error.errorCategory}</span>
+
+                        <input
+                            type="number"
+                            placeholder="Reorder Level"
+                            name="reorderLevel"
+                            className="border p-2 w-full mt-2 rounded-md"
+                            onChange={handleChange}
+                            value={data.reorderLevel || ''}
+                        />
+                        <span className="text-red-500 text-xs font-bold">{error.errorReorderLevel}</span>
+
+                        <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded w-full hover:bg-blue-700">
+                            Update Medicine
+                        </button>
+                    </form>
+                ) : (
+                    <p>Loading...</p> // Show loading message until data is available
+                )}
+
+                <div className="w-full flex-col items-center flex justify-center py-4">
+                    <p>Want to go back? <Link to="/admin/medicine"> <span className="text-blue-500">Medicine List</span></Link></p>
+                </div>
+            </div>
+        </div>
+    );
+
+};

@@ -12,22 +12,16 @@ export default function GetStarted() {
                     }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-[#ffffff] to-[#fffefee] mix-blend-multiply" />
-                <div className="relative z-10 grid w-full grid-cols-1 gap-12 lg:grid-cols-2 max-w-7xl">
+                <div className="relative z-10  w-full max-w-7xl">
                     <Card
                         title="Patient"
                         description="Access your personal account and manage your individual profile. Join our community of users and unlock exclusive features."
                         image="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80"
                     >
-                        <Button href="/auth/patient/signup">Sign Up</Button>
-                        <Button href="/auth/signin">Sign In</Button>
-                    </Card>
-                    <Card
-                        title="Admin"
-                        description="Manage your business account, team members, and company resources. Scale your operations with our powerful business tools."
-                        image="https://images.unsplash.com/photo-1556761175-4b46a572b786?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80"
-                    >
-                        <Button href="/signup-business">Sign Up</Button>
-                        <Button href="/auth/signin">Sign In</Button>
+                       <div className="w-full flex justify-around">
+                       <Button href="/auth/patient/signup">Sign Up</Button>
+                       <Button href="/auth/signin">Sign In</Button>
+                       </div>
                     </Card>
                 </div>
             </div>
@@ -43,7 +37,7 @@ function Card({
     children,
 }) {
     return (
-        <div className="flex flex-col overflow-hidden bg-white shadow-2xl bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-2xl">
+        <div className="flex  flex-col overflow-hidden bg-white shadow-2xl bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-2xl">
             <div className="relative h-64">
                 <div
                     className="absolute inset-0 bg-center bg-cover"

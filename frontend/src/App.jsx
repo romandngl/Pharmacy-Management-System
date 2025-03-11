@@ -18,6 +18,9 @@ import { PharmacistLayout } from './layout/PharmacistLayout';
 import { AdminInventory } from './pages/admin/inventory/AdminInventory';
 import { AdminMedicine } from './pages/admin/medcine/AdminMedicine';
 import { AddMedicine } from './pages/admin/medcine/AddMedicine';
+import { EditMedicine } from './pages/admin/medcine/EditMedicine';
+import { AddInventory } from './pages/admin/inventory/AddInventory';
+import ContactPage from './landing/ContactPage';
 function App() {
   const router = createBrowserRouter([
     {
@@ -28,7 +31,10 @@ function App() {
           path: "/", element: <HomePage />
         }, {
           path: "/about", element: <AboutPage />
-        }, {
+        },{
+          path: "/contact", element: <ContactPage />
+        }, 
+        {
           path: "/get-started", element: <GetStarted />
         }
       ]
@@ -70,11 +76,17 @@ function App() {
           path: "/admin/inventory", element: <AdminInventory />
         },
         {
+          path: "/admin/inventory/add", element: <AddInventory />
+        },
+        {
           path: "/admin/medicine", element: <AdminMedicine />,
 
         },
         {
           path: "/admin/medicine/add", element: <AddMedicine />
+        },
+        {
+          path: "/admin/medicine/edit/:id", element: <EditMedicine />
         }
 
       ]
@@ -85,6 +97,16 @@ function App() {
       children: [
         {
           path: "/pharmacist/dashboard", element: <PharmacistDashboard />
+        },
+        {
+          path: "/pharmacist/medicine", element: <AdminMedicine />,
+
+        },
+        {
+          path: "/pharmacist/medicine/add", element: <AddMedicine />
+        },
+        {
+          path: "/pharmacist/medicine/edit/:id", element: <EditMedicine />
         }
       ]
     }
