@@ -6,7 +6,7 @@ const { addMedicine, getMedicine, deleteMedicine, editMedicine, addToInventory, 
 router.put('/medicine/:medicineId', editMedicine);
 router.get('/medicine/:medicineId?', getMedicine);
 router.delete('/medicine/:medicineId', deleteMedicine);
-router.post('/medicine', addMedicine);
+router.post('/medicine/add', addMedicine);
 router.put('/inventory/:medicineId', updateInventory);
 router.post('/inventory/reorder', reorderMedicine);
 router.get('/inventory/report', generateStockReport);
