@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_URL from '../../../../configuration/Api';
 import { getDateString } from '../../../../utils/ModifyDate';
+import { Pencil, Plus } from 'lucide-react';
 
 
 const PharmacistInventory = () => {
@@ -11,14 +12,14 @@ const PharmacistInventory = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [formData, setFormData] = useState({ medicineId: '', quantity: '', medicineName: '', createdAt: '' });
-    console.log(inventory)
+    const [formData, setFormData] = useState({ medicineId: '', quantity: '', medicineName: '', inventoryId: '' });
+
+
     useEffect(() => {
         const fetchInventory = async () => {
             try {
                 const response = await axios.get(`${API_URL}/inventory/report`);
                 setInventory(response.data.inventory);
-                console.log(response.data.inventory);
             } catch (err) {
                 setError('Failed to fetch inventory data.');
             } finally {
@@ -34,13 +35,14 @@ const PharmacistInventory = () => {
     }
 
     const handleEdit = (item) => {
-        setFormData({ medicineId: item.medicine._id, quantity: Number(item.quantity), medicineName: item.medicine.name, createdAt: item.medicine.createdAt });
+        console.log("Item data",item)
+        setFormData({ medicineId: item.medicine._id, quantity: Number(item.quantity), medicineName: item.medicine.name, inventoryId: item._id });
         setShowModal(true);
     };
 
     const handleClose = () => {
         setShowModal(false);
-        setFormData({ medicineId: '', quantity: '' });
+        setFormData({ medicineId: '', quantity: '', inventoryId: '' });
     };
 
     const handleChange = (e) => {
@@ -53,12 +55,11 @@ const PharmacistInventory = () => {
             const sendData = {
                 medicineId: formData.medicineId,
                 quantity: formData.quantity,
-                createdAt: formData.createdAt
             }
-            const res = await axios.put(`${API_URL}/inventory/${formData.medicineId}`, sendData);
+            const res = await axios.put(`${API_URL}/inventory/${formData.inventoryId}`, sendData);
             alert(res.data.message);
             setShowModal(false);
-            setFormData({ medicineId: '', quantity: '' });
+            setFormData({ medicineId: '', quantity: '',medicineName: '', inventoryId: '' });
         } catch (error) {
             alert(error.response.data.message);
         }
@@ -79,7 +80,7 @@ const PharmacistInventory = () => {
                 {/* Table Section */}
                 <div className='flex justify-between items-center'>
                     <h3 className="text-2xl font-semibold mb-4">Inventory List</h3>
-                    <button className='text-xl' onClick={handleAdd}>Add</button>
+                    <button className='text-xl' onClick={handleAdd}><Plus /></button>
                 </div>
                 <div className="overflow-x-auto bg-white shadow-md rounded-lg">
                     {loading ? (
@@ -117,7 +118,7 @@ const PharmacistInventory = () => {
                                             <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.medicine.updatedAt) ?? "N/A"}</td>
                                             <td className=" px-6 py-3 text-sm text-gray-700">
                                                 <button onClick={e => handleEdit(item)} className="text-blue-500 hover:text-blue-700">
-                                                    Edit
+                                                <Pencil  size={20}/>
                                                 </button>
                                             </td>
                                         </tr>

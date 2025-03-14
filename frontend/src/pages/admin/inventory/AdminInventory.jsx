@@ -3,44 +3,43 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_URL from '../../../../configuration/Api';
 import { getDateString } from '../../../../utils/ModifyDate';
+import { Pencil, Plus } from 'lucide-react';
 
 
 export const AdminInventory = () => {
     const navigate = useNavigate();
     const [inventory, setInventory] = useState([]);
+    const[reset,setReset]=useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [formData, setFormData] = useState({ medicineId: '', quantity: '',medicineName:'' });
-    console.log(inventory)
+    const [formData, setFormData] = useState({ medicineId: '', quantity: '',medicineName:'',inventoryId:'' });
     useEffect(() => {
         const fetchInventory = async () => {
             try {
                 const response = await axios.get(`${API_URL}/inventory/report`);
                 setInventory(response.data.inventory);
-                console.log(response.data.inventory);
             } catch (err) {
                 setError('Failed to fetch inventory data.');
             } finally {
                 setLoading(false);
             }
         };
-
         fetchInventory();
-    }, []);
+    }, [reset]);
 
     function handleAdd() {
         navigate("/admin/inventory/add")
     }
 
     const handleEdit = (item) => {
-        setFormData({ medicineId: item.medicine._id, quantity: Number(item.quantity),medicineName:item.medicine.name });
+        setFormData({ medicineId: item.medicine._id, quantity: Number(item.quantity), medicineName: item.medicine.name, inventoryId: item._id });
         setShowModal(true);
     };
 
     const handleClose = () => {
         setShowModal(false);
-        setFormData({ medicineId: '', quantity: '' });
+        setFormData({ medicineId: '', quantity: '', inventoryId: '' });
     };
 
     const handleChange = (e) => {
@@ -52,12 +51,14 @@ export const AdminInventory = () => {
         try {
             const sendData = {
                 medicineId: formData.medicineId,
-                quantity: formData.quantity
+                quantity: formData.quantity,
+                createdAt:formData.createdAt
             }
-            const res = await axios.put(`${API_URL}/inventory/${formData.medicineId}`,sendData);
+            const res = await axios.put(`${API_URL}/inventory/${formData.inventoryId}`,sendData);
             alert(res.data.message);
             setShowModal(false);
-            setFormData({ medicineId: '', quantity: '' });
+            setReset(!reset);
+            setFormData({ medicineId: '', quantity: '',medicineName: '', inventoryId: '' });
         } catch (error) {
             alert(error.response.data.message);
         }
@@ -78,7 +79,7 @@ export const AdminInventory = () => {
                 {/* Table Section */}
                 <div className='flex justify-between items-center'>
                     <h3 className="text-2xl font-semibold mb-4">Inventory List</h3>
-                    <button className='text-xl' onClick={handleAdd}>Add</button>
+                    <button className='text-xl' onClick={handleAdd}><Plus /></button>
                 </div>
                 <div className="overflow-x-auto bg-white shadow-md rounded-lg">
                     {loading ? (
@@ -115,8 +116,8 @@ export const AdminInventory = () => {
                                             <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.medicine.createdAt) ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.medicine.updatedAt) ?? "N/A"}</td>
                                             <td  className=" px-6 py-3 text-sm text-gray-700">
-                                                <button onClick={e=>handleEdit(item)} className="text-blue-500 hover:text-blue-700">
-                                                    Edit
+                                                <button  onClick={e=>handleEdit(item)} className="text-blue-500 hover:text-blue-700">
+                                                <Pencil  size={20}/>
                                                 </button>
                                             </td>
                                         </tr>

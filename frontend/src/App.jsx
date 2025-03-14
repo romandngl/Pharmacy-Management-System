@@ -21,6 +21,13 @@ import { AddMedicine } from './pages/admin/medcine/AddMedicine';
 import { EditMedicine } from './pages/admin/medcine/EditMedicine';
 import { AddInventory } from './pages/admin/inventory/AddInventory';
 import ContactPage from './landing/ContactPage';
+import PharmacistMedicine from './pages/pharmacist/medicine/PharmacistMedicine';
+import PharmacistInventory from './pages/pharmacist/inventory/PharmacistInventory';
+import AdminReadCategory from './pages/admin/category/AdminReadCategory';
+import PharmacistReadCategory from './pages/pharmacist/category/PharmacistReadCategory';
+import AddCategory from '../components/category/AddCategory';
+import AdminAddCategory from './pages/admin/category/AdminAddCategory';
+import PharmacistAddCategory from './pages/pharmacist/category/PharmacistAddCategory';
 function App() {
   const router = createBrowserRouter([
     {
@@ -31,9 +38,9 @@ function App() {
           path: "/", element: <HomePage />
         }, {
           path: "/about", element: <AboutPage />
-        },{
+        }, {
           path: "/contact", element: <ContactPage />
-        }, 
+        },
         {
           path: "/get-started", element: <GetStarted />
         }
@@ -80,15 +87,18 @@ function App() {
         },
         {
           path: "/admin/medicine", element: <AdminMedicine />,
-
         },
         {
           path: "/admin/medicine/add", element: <AddMedicine />
         },
         {
           path: "/admin/medicine/edit/:id", element: <EditMedicine />
+        }, {
+          path: "/admin/category", element: <AdminReadCategory />
+        },
+        , {
+          path: "/admin/add/category", element: <AdminAddCategory />
         }
-
       ]
     },
     {
@@ -99,14 +109,25 @@ function App() {
           path: "/pharmacist/dashboard", element: <PharmacistDashboard />
         },
         {
-          path: "/pharmacist/medicine", element: <AdminMedicine />,
-
+          path: "/pharmacist/medicine", element: <PharmacistMedicine />,
         },
         {
           path: "/pharmacist/medicine/add", element: <AddMedicine />
         },
         {
           path: "/pharmacist/medicine/edit/:id", element: <EditMedicine />
+        },
+        {
+          path: "/pharmacist/inventory", element: <PharmacistInventory />
+        },
+        {
+          path: "/pharmacist/inventory/add", element: <AddInventory />
+        },
+        {
+          path: "/pharmacist/category", element: <PharmacistReadCategory />
+        },
+        {
+          path: "/pharmacist/add/category", element: <PharmacistAddCategory />
         }
       ]
     }

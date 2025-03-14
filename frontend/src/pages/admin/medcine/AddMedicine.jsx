@@ -1,15 +1,23 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import API_URL from '../../../../configuration/Api';
 
 export const AddMedicine = () => {
-    const navigate = useNavigate();
+    
     const [data, setData] = useState({
         name: '',
         category: '',
         reorderLevel: ''
     });
+
+    const [categories, setCategories] = useState([]);
+    useEffect(() => {
+        axios.get(API_URL + '/categories')
+            .then((res) => {
+                setCategories(res.data.categories)
+            }).catch((err) => console.log(err))
+    }, [])
 
     const [error, setError] = useState({
         errorName: "",
@@ -59,11 +67,9 @@ export const AddMedicine = () => {
         }
 
         setError(errors);
-        console.log(data);
         try {
             const res = await axios.post(API_URL + '/medicine/add', data);
             const res_data = await res.data;
-            console.log(res_data);
             alert(res_data.message);
             // navigate("/admin/medicine"); // Redirect to the list page after successful submission
             setData({
@@ -93,14 +99,19 @@ export const AddMedicine = () => {
                     />
                     <span className="text-red-500 text-xs font-bold">{error.errorName}</span>
 
-                    <input
-                        type="text"
-                        placeholder="Category"
+                    <select
                         name="category"
                         className="border p-2 w-full mt-2 rounded-md"
                         onChange={handleChange}
                         value={data.category}
-                    />
+                    >
+                        <option disabled selected value="">Select Category</option>
+                        {
+                            categories.map((categorie, i) => (
+                                <option value={categorie.name}>{categorie.name}</option>
+                            ))
+                        }
+                    </select>
                     <span className="text-red-500 text-xs font-bold">{error.errorCategory}</span>
 
                     <input

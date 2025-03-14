@@ -24,7 +24,6 @@ export const AddInventory = () => {
             try {
                 const response = await axios.get(`${API_URL}/medicine`);
                 setMedicineIds(response?.data.medicines);
-                console.log(response.data.medicines);
             } catch (err) {
                 setError('Failed to fetch medicines data.');
             }
@@ -73,11 +72,9 @@ export const AddInventory = () => {
         }
 
         setError(errors);
-        console.log(data);
         try {
             const res = await axios.post(API_URL + '/inventory', data);
             const res_data = await res.data;
-            console.log(res_data);
             alert(res_data.message);
             navigate("/admin/inventory"); // Redirect to the inventory list page after successful submission
             setData({

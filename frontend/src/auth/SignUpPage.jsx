@@ -67,8 +67,6 @@ export const SignUpPage = () => {
     try {
       const res = await axios.post(`${API_URL}/auth/register`, data);
       const res_data = await res.data;
-      console.log(res_data);
-      alert(res_data.message);
       setData({
         name: "",
         email: "",

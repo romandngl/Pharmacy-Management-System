@@ -3,6 +3,7 @@ import React, { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import API_URL from '../../../../configuration/Api'
 import { getDateString } from "../../../../utils/ModifyDate"
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 
 const PharmacistMedicine = () => {
     const [medicine, setMedicine] = React.useState([])
@@ -31,7 +32,6 @@ const PharmacistMedicine = () => {
         }
         axios.delete(API_URL + "/medicine/" + id)
             .then(res => {
-                console.log(res?.data?.message)
                 alert("Medicine deleted successfully")
                 setMedicine(medicine.filter(med => med._id !== id))
             }).catch(err => {
@@ -62,7 +62,7 @@ const PharmacistMedicine = () => {
                 <div>
                     <h3 className="flex px-5 justify-between items-center text-2xl font-semibold mb-4">
                         <div>Medicine List</div>
-                        <div className='text-xl'><Link to={"/pharmacist/medicine/add"}>Add</Link></div>
+                        <div className='text-xl'><Link to={"/pharmacist/medicine/add"}><Plus /></Link></div>
                     </h3>
                     <div className="overflow-x-auto bg-white shadow-md rounded-lg">
                         <table className="min-w-full table-auto">
@@ -71,8 +71,6 @@ const PharmacistMedicine = () => {
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">#</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Name</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Category</th>
-                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Expiry Date</th>
-                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Stock Level</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Reorder Level</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Action</th>
                                 </tr>
@@ -84,12 +82,10 @@ const PharmacistMedicine = () => {
                                             <td className="px-6 py-3 text-sm text-gray-700">{index + 1}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{medicine.name ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{medicine.category ?? "N/A"}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700"> {getDateString(medicine.expiryDate)}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine.stockLevel ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{medicine.reorderLevel ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700 space-x-4">
-                                                <button onClick={e => handleEdit(medicine?._id)}>Edit</button>
-                                                <button onClick={e => handleDelete(medicine?._id)}>Delete</button>
+                                                <button onClick={e => handleEdit(medicine?._id)}><Pencil size={20} /></button>
+                                                <button onClick={e => handleDelete(medicine?._id)}><Trash2 size={20} /></button>
                                             </td>
 
 

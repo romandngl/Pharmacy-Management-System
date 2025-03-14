@@ -53,11 +53,9 @@ export const SignInPage = () => {
         }
 
         setError(errors);
-        console.log(data);
         try {
             const res = await axios.post(API_URL + '/auth/login', data);
             const res_data = await res.data;
-            console.log(res_data);
             alert(res_data.message);
             Cookies.set('token', res_data.token);
             const token = res_data.token

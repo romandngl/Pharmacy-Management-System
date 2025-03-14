@@ -4,7 +4,6 @@ export function getDateString(date) {
     
     // Check if the resulting Date is valid
     if (isNaN(validDate.getTime())) {
-      console.log("Invalid date")
       return "N/A";
       // throw new Error("Invalid date");
     }

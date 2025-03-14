@@ -12,7 +12,6 @@ export const EditMedicine = () => {
         reorderLevel: ''
     });
 
-    console.log(data)
 
 
     const [error, setError] = useState({
@@ -26,7 +25,6 @@ export const EditMedicine = () => {
         const fetchMedicine = async () => {
             try {
                 const res = await axios.get(`${API_URL}/medicine/${id}`);
-                console.log(res?.data.medicines)
                 setData(res?.data.medicines);
             } catch (error) {
                 console.log(error);
