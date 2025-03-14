@@ -7,7 +7,7 @@ router.put('/medicine/:medicineId', editMedicine);
 router.get('/medicine/:medicineId?', getMedicine);
 router.delete('/medicine/:medicineId', deleteMedicine);
 router.post('/medicine/add', addMedicine);
-router.put('/inventory/:medicineId', updateInventory);
+router.put('/inventory/:inventoryId', updateInventory);
 router.post('/inventory/reorder', reorderMedicine);
 router.get('/inventory/report', generateStockReport);
 router.post('/inventory', addToInventory);

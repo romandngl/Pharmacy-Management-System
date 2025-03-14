@@ -92,13 +92,13 @@ const editMedicine = async (req, res) => {
 // Add Medicine to Inventory
 const addToInventory = async (req, res) => {
     try {
-        const { medicineId, quantity, expiryDate, reorderLevel } = req.body; // ✅ expiryDate added
+        const { medicineId, quantity, expiryDate} = req.body; // ✅ expiryDate added
 
         const medicine = await Medicine.findById(medicineId);
         if (!medicine) return res.status(404).json({ message: 'Medicine not found' });
 
         // Create inventory entry with expiry date
-        const inventoryItem = new Inventory({ medicine: medicineId, quantity, expiryDate, reorderLevel });
+        const inventoryItem = new Inventory({ medicine: medicineId, quantity, expiryDate});
         await inventoryItem.save();
 
         res.status(201).json({ message: 'Medicine added to inventory', inventoryItem });
@@ -107,25 +107,58 @@ const addToInventory = async (req, res) => {
     }
 };
 // Update Inventory Stock
+
 const updateInventory = async (req, res) => {
     try {
-        const { medicineId } = req.params;
-        const { quantity } = req.body;
+        const { inventoryId } = req.params;
+        const { medicineId, quantity, expiryDate } = req.body;
 
-        // Find inventory item
-        let inventoryItem = await Inventory.findOne({ medicine: medicineId });
-        if (!inventoryItem) return res.status(404).json({ message: 'Inventory item not found' });
+        // console.log(`Updating inventory: inventoryId=${inventoryId}, medicineId=${medicineId}, quantity=${quantity}, expiryDate=${expiryDate}`);
 
-        // Update quantity
-        inventoryItem.quantity = quantity;
-        await inventoryItem.save();
+        // Find the inventory record
+        const inventory = await Inventory.findOne({ _id: inventoryId, medicine: medicineId });
+        if (!inventory) {
+            console.log('Inventory record not found');
+            return res.status(404).json({ message: 'Inventory record not found' });
+        }
 
-        res.json({ message: 'Inventory updated', inventoryItem });
+        console.log(`Current inventory found: ${JSON.stringify(inventory)}`);
+
+        // Update only provided fields
+        if (quantity !== undefined) {
+            inventory.quantity = quantity;
+        }
+        if (expiryDate !== undefined) {
+            inventory.expiryDate = expiryDate;
+        }
+
+        // Check if at least one field is being updated
+        if (quantity === undefined && expiryDate === undefined) {
+            return res.status(400).json({ message: 'No fields to update' });
+        }
+
+        await inventory.save();
+        console.log(`Updated inventory: ${JSON.stringify(inventory)}`);
+
+        // Only update stock level if quantity was changed
+        if (quantity !== undefined) {
+            const totalStock = await Inventory.aggregate([
+                { $match: { medicine: medicineId } },
+                { $group: { _id: null, totalQuantity: { $sum: "$quantity" } } }
+            ]);
+
+            const stockLevel = totalStock.length > 0 ? totalStock[0].totalQuantity : 0;
+            // console.log(`Updated stock level for medicineId=${medicineId}: ${stockLevel}`);
+
+            await Medicine.findByIdAndUpdate(medicineId, { stockLevel });
+        }
+
+        res.json({ message: 'Inventory updated successfully', inventory });
     } catch (error) {
+        // console.error('Error updating inventory:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
-
 // Reorder Medicine (if stock is low)
 const reorderMedicine = async (req, res) => {
     try {
@@ -164,6 +197,7 @@ const generateStockReport = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
 
 module.exports = {
     addMedicine,
