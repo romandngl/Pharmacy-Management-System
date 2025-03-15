@@ -12,7 +12,7 @@ const getMedicine = async (req, res) => {
                 return res.status(404).json({ message: 'Medicine not found' });
             }
         } else {
-            // Get all medicines (including active ones only, excluding soft deleted)
+            // Get all medicines (excluding soft deleted)
             medicines = await Medicine.find({ isDeleted: false });
         }
 
@@ -22,11 +22,14 @@ const getMedicine = async (req, res) => {
     }
 };
 
-
 // Add New Medicine
 const addMedicine = async (req, res) => {
     try {
-        const { name, category, reorderLevel } = req.body;
+        const { name, category, reorderLevel, price } = req.body;
+
+        if (!price || price <= 0) {
+            return res.status(400).json({ message: 'Valid price is required' });
+        }
 
         let medicine = await Medicine.findOne({ name, category });
 
@@ -34,7 +37,7 @@ const addMedicine = async (req, res) => {
             return res.status(400).json({ message: 'Medicine already exists' });
         }
 
-        medicine = new Medicine({ name, category, reorderLevel });
+        medicine = new Medicine({ name, category, reorderLevel, price }); // ✅ Include price
         await medicine.save();
 
         res.status(201).json({ message: 'Medicine added', medicine });
@@ -43,6 +46,7 @@ const addMedicine = async (req, res) => {
     }
 };
 
+// Soft Delete Medicine
 const deleteMedicine = async (req, res) => {
     try {
         const { medicineId } = req.params;
@@ -66,24 +70,48 @@ const deleteMedicine = async (req, res) => {
     }
 };
 
+// Edit Medicine
 const editMedicine = async (req, res) => {
     try {
         const { medicineId } = req.params;
-        const { name, category, reorderLevel } = req.body;
+        const { name, reorderLevel, price } = req.body; // ❌ Removed category from request body
 
         const medicine = await Medicine.findById(medicineId);
         if (!medicine) {
             return res.status(404).json({ message: 'Medicine not found' });
         }
 
-        // Update fields
-        medicine.name = name || medicine.name;
-        medicine.category = category || medicine.category;
-        medicine.reorderLevel = reorderLevel || medicine.reorderLevel;
+        // ✅ Update only the allowed fields
+        if (name) medicine.name = name;
+        if (reorderLevel !== undefined) medicine.reorderLevel = reorderLevel;
+        if (price !== undefined && price > 0) medicine.price = price;
 
         await medicine.save();
 
         res.json({ message: 'Medicine updated successfully', medicine });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+const updateMedicineCategory = async (req, res) => {
+    try {
+        const { medicineId } = req.params;
+        const { categoryId } = req.body;
+
+        if (!categoryId) {
+            return res.status(400).json({ message: 'categoryId is required' });
+        }
+
+        const medicine = await Medicine.findById(medicineId);
+        if (!medicine) {
+            return res.status(404).json({ message: 'Medicine not found' });
+        }
+
+        medicine.category = categoryId;
+        await medicine.save();
+
+        res.json({ message: 'Medicine category updated successfully', medicine });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
@@ -197,17 +225,44 @@ const generateStockReport = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+const generateDetailedStockReport = async (req, res) => {
+    try {
+        const inventory = await Inventory.aggregate([
+            {
+                $group: {
+                    _id: "$medicine",
+                    totalQuantity: { $sum: "$quantity" }
+                }
+            }
+        ]);
 
+        if (inventory.length === 0) {
+            return res.status(404).json({ message: "No inventory records found" });
+        }
+
+        // Populate Medicine details
+        const report = await Medicine.populate(inventory, { path: "_id", select: "name category" });
+
+        res.json({
+            message: "Detailed Stock Report Generated",
+            report
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
 
 module.exports = {
     addMedicine,
     getMedicine,
     deleteMedicine,
     editMedicine,
+    updateMedicineCategory,
 
     addToInventory,
     updateInventory,
     reorderMedicine,
     generateStockReport,
-    
+    generateDetailedStockReport
 };
