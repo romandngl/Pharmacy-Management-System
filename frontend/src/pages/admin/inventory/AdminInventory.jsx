@@ -108,7 +108,7 @@ export const AdminInventory = () => {
                                         <tr key={item._id} className="border-b hover:bg-gray-50">
                                             <td className="px-6 py-3 text-sm text-gray-700">{index + 1}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.name ?? "N/A"}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.category ?? "N/A"}</td>
+                                            <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.category?.name ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.medicine.expiryDate) ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{item.quantity ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.stockLevel ?? "N/A"}</td>

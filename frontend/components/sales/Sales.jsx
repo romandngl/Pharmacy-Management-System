@@ -1,27 +1,21 @@
+import axios from 'axios';
 import { CirclePlus, Eye } from 'lucide-react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_URL from '../../configuration/Api';
 
 const Sales = () => {
     const navigate = useNavigate();
-    const sales = [
-        {
-            _id: "67d2f3f98f9ff588c4250659",
-            medicineName: "Aspirin",
-            category: "67d2f2e58f9ff588c4250642",
-            inventoryId: {
-                _id: "67d2f3b68f9ff588c4250650",
-                quantity: 190,
-                expiryDate: "2025-12-31T00:00:00.000Z"
-            },
-            expiryDate: "2025-12-31T00:00:00.000Z",
-            quantitySold: 10,
-            totalPrice: 100,
-            saleDate: "2025-03-13T15:04:25.680Z",
-            createdAt: "2025-03-13T15:04:25.684Z",
-            updatedAt: "2025-03-13T15:04:25.684Z"
-        }
-    ];
+    const [sales, setSales] = useState([])
+
+
+    useEffect(() => {
+        axios.get(API_URL + "/sales")
+            .then((res) => {
+                console.log(res?.data.sales)
+                setSales(res?.data.sales)
+            }).catch((err) => console.log(err))
+    }, [])
 
     return (
         <div className='w-full min-h-screen bg-gray-100 p-6'>
@@ -54,7 +48,7 @@ const Sales = () => {
                                     <td className='px-6 py-3 text-sm text-gray-700'>{sale.totalPrice}</td>
                                     <td className='px-6 py-3 text-sm text-gray-700'>{new Date(sale.expiryDate).toLocaleDateString()}</td>
                                     <td className='px-6 py-3 text-sm text-gray-700'>{new Date(sale.saleDate).toLocaleDateString()}</td>
-                                    <td className='px-6 cursor-pointer py-3 text-sm text-gray-700'><Eye onClick={e => navigate(`/admin/sales/${sale._id}`)} /></td>
+                                    <td className='px-6 cursor-pointer py-3 text-sm text-gray-700'><Eye onClick={e => navigate(`/admin/sales/${sale?._id}`)} /></td>
                                 </tr>
                             ))
                         ) : (

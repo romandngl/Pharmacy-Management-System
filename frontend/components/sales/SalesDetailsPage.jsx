@@ -1,36 +1,30 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import jsPDF from 'jspdf';  // Base jsPDF
 import autoTable from 'jspdf-autotable';  // Explicit autoTable import
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
+import API_URL from '../../configuration/Api';
 
 const SalesDetailsPage = () => {
-  const salesData = {
-    "_id": "67d2f3f98f9ff588c4250659",
-    "medicine": {
-      "_id": "67d2f34a8f9ff588c425064a",
-      "name": "Aspirin"
-    },
-    "medicineName": "Aspirin",
-    "category": "67d2f2e58f9ff588c4250642",
-    "inventoryId": {
-      "_id": "67d2f3b68f9ff588c4250650",
-      "quantity": 190,
-      "expiryDate": "2025-12-31T00:00:00.000Z"
-    },
-    "expiryDate": "2025-12-31T00:00:00.000Z",
-    "quantitySold": 10,
-    "totalPrice": 100,
-    "saleDate": "2025-03-13T15:04:25.680Z",
-    "createdAt": "2025-03-13T15:04:25.684Z",
-    "updatedAt": "2025-03-13T15:04:25.684Z",
-    "__v": 0
-  };
+  const param = useParams();
+  const id = param?.id
+
+  const [sale, setSale] = useState();
+  console.log("Salte staet data",sale)
+  useEffect(() => {
+    axios.get(API_URL + "/sales/" + id)
+      .then((res) => {
+        console.log(res?.data.sale);
+        setSale(res?.data.sale)
+      }).catch((err) => console.log(err))
+  }, [])
 
   const downloadPDF = () => {
     const doc = new jsPDF();
-    
+
     doc.setFontSize(18);
     doc.text('Sale Details', 14, 20);
-    
+
     doc.setFontSize(12);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
 
@@ -39,20 +33,21 @@ const SalesDetailsPage = () => {
       startY: 40,
       head: [['Field', 'Value']],
       body: [
-        ['Medicine Name', salesData.medicineName],
-        ['Quantity Sold', salesData.quantitySold],
-        ['Total Price', `$${salesData.totalPrice}`],
-        ['Sale Date', new Date(salesData.saleDate).toLocaleString()],
-        ['Expiry Date', new Date(salesData.expiryDate).toLocaleDateString()],
-        ['Remaining Stock', salesData.inventoryId.quantity],
-        ['Sale ID', salesData._id],
+        ['Medicine Name', sale?.medicineName],
+        ['Category',sale?.category],
+        ['Quantity Sold', sale?.quantitySold],
+        ['Total Price', `RS ${sale?.totalPrice}`],
+        ['Sale Date', new Date(sale?.saleDate).toLocaleString()],
+        ['Expiry Date', new Date(sale?.expiryDate).toLocaleDateString()],
+        ['Remaining Stock', sale?.inventoryId.quantity],
+        ['Sale ID', sale?._id],
       ],
       theme: 'grid',
       styles: { fontSize: 10 },
       headStyles: { fillColor: [66, 66, 66] },
     });
 
-    doc.save(`sale-${salesData._id}.pdf`);
+    doc.save(`sale-${sale?._id}.pdf`);
   };
 
   return (
@@ -71,41 +66,46 @@ const SalesDetailsPage = () => {
         <div className="space-y-4">
           <div className="border-b pb-2">
             <span className="text-gray-600 font-medium">Medicine Name:</span>
-            <span className="block text-gray-800">{salesData.medicineName}</span>
+            <span className="block text-gray-800">{sale?.medicineName ?? "N/A"}</span>
+          </div>
+
+          <div className="border-b pb-2">
+            <span className="text-gray-600 font-medium">Category Name:</span>
+            <span className="block text-gray-800">{sale?.category ?? "N/A"}</span>
           </div>
 
           <div className="border-b pb-2">
             <span className="text-gray-600 font-medium">Quantity Sold:</span>
-            <span className="block text-gray-800">{salesData.quantitySold}</span>
+            <span className="block text-gray-800">{sale?.quantitySold ?? "N/A"}</span>
           </div>
 
           <div className="border-b pb-2">
             <span className="text-gray-600 font-medium">Total Price:</span>
-            <span className="block text-gray-800">${salesData.totalPrice}</span>
+            <span className="block text-gray-800">Rs{sale?.totalPrice ?? "N/A"}</span>
           </div>
 
           <div className="border-b pb-2">
             <span className="text-gray-600 font-medium">Sale Date:</span>
             <span className="block text-gray-800">
-              {new Date(salesData.saleDate).toLocaleString()}
+              {new Date(sale?.saleDate).toLocaleString() ?? "N/A"}
             </span>
           </div>
 
           <div className="border-b pb-2">
             <span className="text-gray-600 font-medium">Expiry Date:</span>
             <span className="block text-gray-800">
-              {new Date(salesData.expiryDate).toLocaleDateString()}
+              {new Date(sale?.expiryDate).toLocaleDateString() ?? "N/A"}
             </span>
           </div>
 
           <div className="border-b pb-2">
             <span className="text-gray-600 font-medium">Remaining Stock:</span>
-            <span className="block text-gray-800">{salesData.inventoryId.quantity}</span>
+            <span className="block text-gray-800">{sale?.inventoryId?.quantity ?? "N/A"}</span>
           </div>
 
           <div className="pt-2">
             <span className="text-gray-600 font-medium">Sale ID:</span>
-            <span className="block text-gray-800 text-sm break-all">{salesData._id}</span>
+            <span className="block text-gray-800 text-sm break-all">{sale?._id ?? "N/A"}</span>
           </div>
         </div>
       </div>
