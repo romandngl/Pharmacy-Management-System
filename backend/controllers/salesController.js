@@ -78,8 +78,12 @@ const addSales = async (req, res) => {
 const getAllSales = async (req, res) => {
     try {
         const sales = await Sales.find()
-            .populate('medicine', 'name') // Get only the medicine name
-            .populate('inventoryId', 'expiryDate quantity'); // Get expiry date and remaining quantity of the inventory
+            .populate({
+                path: 'medicine',
+                select: 'name category',
+                populate: { path: 'category', select: 'name' } // ✅ Fetch category name correctly
+            })
+            .populate('inventoryId', 'expiryDate quantity'); // ✅ Get expiry date and quantity
 
         res.status(200).json({ message: 'Sales retrieved successfully', sales });
     } catch (error) {
@@ -92,7 +96,11 @@ const getSaleById = async (req, res) => {
     try {
         const { id } = req.params;
         const sale = await Sales.findById(id)
-            .populate('medicine', 'name')
+            .populate({
+                path: 'medicine',
+                select: 'name category',
+                populate: { path: 'category', select: 'name' } // ✅ Fetch category name correctly
+            })
             .populate('inventoryId', 'expiryDate quantity');
 
         if (!sale) {
