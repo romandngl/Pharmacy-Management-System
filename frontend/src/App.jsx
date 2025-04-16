@@ -28,6 +28,8 @@ import PharmacistReadCategory from './pages/pharmacist/category/PharmacistReadCa
 import AddCategory from '../components/category/AddCategory';
 import AdminAddCategory from './pages/admin/category/AdminAddCategory';
 import PharmacistAddCategory from './pages/pharmacist/category/PharmacistAddCategory';
+import AdminSales from './pages/admin/sales/AdminSales';
+import SalesDetailsPage from '../components/category/SalesDetailsPage';
 function App() {
   const router = createBrowserRouter([
     {
@@ -98,6 +100,10 @@ function App() {
         },
         , {
           path: "/admin/add/category", element: <AdminAddCategory />
+        },{
+          path:"/admin/sales",element:<AdminSales/>
+        },{
+          path:"/admin/sales/:id",element:<SalesDetailsPage/>
         }
       ]
     },
