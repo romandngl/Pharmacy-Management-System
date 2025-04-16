@@ -6,14 +6,16 @@ const getMedicine = async (req, res) => {
 
         let medicines;
         if (medicineId) {
-            // Get a specific medicine by ID
-            medicines = await Medicine.findById(medicineId);
+            // Fetch single medicine with category name
+            medicines = await Medicine.findById(medicineId)
+                .populate('category', 'name'); // ✅ Fetch category name
             if (!medicines) {
                 return res.status(404).json({ message: 'Medicine not found' });
             }
         } else {
-            // Get all medicines (excluding soft deleted)
-            medicines = await Medicine.find({ isDeleted: false });
+            // Fetch all medicines with category names
+            medicines = await Medicine.find({ isDeleted: false })
+                .populate('category', 'name');
         }
 
         res.status(200).json({ message: 'Medicines retrieved successfully', medicines });
@@ -21,6 +23,7 @@ const getMedicine = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
 
 // Add New Medicine
 const addMedicine = async (req, res) => {
