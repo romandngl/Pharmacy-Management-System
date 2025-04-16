@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 const salesSchema = new mongoose.Schema({
     medicine: { type: mongoose.Schema.Types.ObjectId, ref: 'Medicine', required: true },
-    medicineName: { type: String, required: true }, // ✅ Store medicine name
-    category: { type: String, required: true }, // ✅ Store category
+    medicineName: { type: String, required: true }, 
+    category: { type: String, required: true }, 
     inventoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Inventory', required: true },
-    expiryDate: { type: Date }, // ✅ Store expiry date
+    expiryDate: { type: Date },
     quantitySold: { type: Number, required: true },
     totalPrice: { type: Number, required: true },
     saleDate: { type: Date, required: true },

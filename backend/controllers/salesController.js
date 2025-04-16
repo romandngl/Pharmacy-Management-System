@@ -4,7 +4,7 @@ const Inventory = require('../models/Inventory');
 const Medicine = require('../models/Medicine');
 
 const addSales = async (req, res) => {
-    const session = await mongoose.startSession(); // 🛑 Start a transaction session
+    const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
@@ -19,13 +19,13 @@ const addSales = async (req, res) => {
         for (const sale of sales) {
             const { medicineId, inventoryId, quantitySold } = sale;
 
-            // 🔍 Fetch the medicine with price
-            const medicine = await Medicine.findById(medicineId).session(session);
+            const medicine = await Medicine.findById(medicineId).populate('category', 'name');
             if (!medicine) {
-                throw new Error(`Medicine not found for ID: ${medicineId}`);
+                await session.abortTransaction();
+                session.endSession();
+                return res.status(404).json({ message: `Medicine not found for ID: ${medicineId}` });
             }
 
-            // 🔍 Find the inventory with enough stock
             const inventory = await Inventory.findOne({
                 _id: inventoryId,
                 medicine: medicineId,
@@ -33,57 +33,56 @@ const addSales = async (req, res) => {
             }).session(session);
 
             if (!inventory) {
-                throw new Error(`Not enough stock in inventory for medicine: ${medicine.name}. Available stock: ${inventory ? inventory.quantity : 0}`);
+                await session.abortTransaction();
+                session.endSession();
+                return res.status(400).json({
+                    message: `Not enough stock for medicine: ${medicine.name}. Available stock: ${inventory?.quantity || 0}`
+                });
             }
 
-            // 📉 Deduct stock
             inventory.quantity -= quantitySold;
             await inventory.save({ session });
 
-            // 💰 Calculate total price dynamically
             const totalPrice = quantitySold * medicine.price;
 
-            // 🏷 Store medicine details in sales record
             const newSale = new Sales({
                 medicine: medicine._id,
                 medicineName: medicine.name,
-                category: medicine.category,
-                pricePerUnit: medicine.price, // ✅ Ensure Medicine schema has this field
+                category: medicine.category.name,
                 inventoryId: inventory._id,
                 expiryDate: inventory.expiryDate,
                 quantitySold,
                 totalPrice,
                 saleDate: new Date(),
-                status: "sold"
+                status: 'sold'
             });
 
             await newSale.save({ session });
             salesRecords.push(newSale);
         }
 
-        // ✅ Commit transaction
         await session.commitTransaction();
-        res.status(201).json({ message: 'Sales recorded successfully', salesRecords });
+        session.endSession();
 
+        res.status(201).json({ message: 'Sales recorded successfully', salesRecords });
     } catch (error) {
         await session.abortTransaction();
+        session.endSession();
+        console.error('Error recording sales:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
-
-    } finally {
-        session.endSession(); // ✅ Ensure session ends properly
     }
 };
 
-// ✅ Get All Sales with Medicine & Inventory Info
+
 const getAllSales = async (req, res) => {
     try {
         const sales = await Sales.find()
             .populate({
                 path: 'medicine',
                 select: 'name category',
-                populate: { path: 'category', select: 'name' } // ✅ Fetch category name correctly
+                populate: { path: 'category', select: 'name' } // Populate category details
             })
-            .populate('inventoryId', 'expiryDate quantity'); // ✅ Get expiry date and quantity
+            .populate('inventoryId', 'expiryDate quantity'); // Get expiry date and quantity
 
         res.status(200).json({ message: 'Sales retrieved successfully', sales });
     } catch (error) {
@@ -91,7 +90,6 @@ const getAllSales = async (req, res) => {
     }
 };
 
-// ✅ Get Single Sale by ID
 const getSaleById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -99,7 +97,7 @@ const getSaleById = async (req, res) => {
             .populate({
                 path: 'medicine',
                 select: 'name category',
-                populate: { path: 'category', select: 'name' } // ✅ Fetch category name correctly
+                populate: { path: 'category', select: 'name' } // Populate category details
             })
             .populate('inventoryId', 'expiryDate quantity');
 
