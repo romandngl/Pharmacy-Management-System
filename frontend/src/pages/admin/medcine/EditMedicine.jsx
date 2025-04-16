@@ -1,17 +1,26 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useFetcher, useNavigate, useParams } from 'react-router-dom';
 import API_URL from '../../../../configuration/Api';
 
 export const EditMedicine = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [currentCategory, setCurrentCategory] = useState("")
     const [data, setData] = useState({
         name: '',
-        category: '',
         reorderLevel: ''
     });
 
+    const [categories, setCategories] = useState([])
+
+    useEffect(() => {
+        axios.get(API_URL + "/categories")
+            .then((res) => {
+                setCategories(res.data.categories)
+                console.log(res.data.categories)
+            }).catch((error) => console.log("Error when fetching categories", error))
+    }, [])
 
 
     const [error, setError] = useState({
@@ -26,6 +35,7 @@ export const EditMedicine = () => {
             try {
                 const res = await axios.get(`${API_URL}/medicine/${id}`);
                 setData(res?.data.medicines);
+                setCurrentCategory(res?.data.medicines.category.name)
             } catch (error) {
                 console.log(error);
                 alert("Failed to fetch medicine details");
@@ -45,6 +55,17 @@ export const EditMedicine = () => {
             [name === "name" ? "errorName" : name === "category" ? "errorCategory" : "errorReorderLevel"]: ""
         });
     };
+
+    const handleChangeCategory = (e) => {
+        const { name, value } = e.target
+        axios.put(API_URL + "/medicine/" + id + "/category", {
+            "categoryId": value
+        })
+            .then((res) => {
+                console.log(res)
+                alert("Updated category for medicine")
+            }).catch((err) => console.log(err))
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -69,6 +90,7 @@ export const EditMedicine = () => {
         try {
             const res = await axios.put(`${API_URL}/medicine/${id}`, data);
             alert(res.data.message);
+            window.location.reload();
             // navigate("/admin/medicine");
         } catch (error) {
             console.log(error);
@@ -94,14 +116,20 @@ export const EditMedicine = () => {
                         />
                         <span className="text-red-500 text-xs font-bold">{error.errorName}</span>
 
-                        <input
-                            type="text"
+                        <select
+
                             placeholder="Category"
                             name="category"
                             className="border p-2 w-full mt-2 rounded-md"
-                            onChange={handleChange}
-                            value={data.category || ''}
-                        />
+                            onChange={handleChangeCategory}
+                        >
+                            <option value={currentCategory}>{currentCategory}</option>
+                            {
+                                categories && categories.map((c, i) => (
+                                    <option key={i} value={c._id}>{c.name}</option>
+                                ))
+                            }
+                        </select>
                         <span className="text-red-500 text-xs font-bold">{error.errorCategory}</span>
 
                         <input
