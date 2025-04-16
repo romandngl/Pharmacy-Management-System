@@ -8,7 +8,7 @@ const getMedicine = async (req, res) => {
         if (medicineId) {
             // Fetch single medicine with category name
             medicines = await Medicine.findById(medicineId)
-                .populate('category', 'name'); // ✅ Fetch category name
+                .populate('category', 'name');
             if (!medicines) {
                 return res.status(404).json({ message: 'Medicine not found' });
             }
@@ -217,7 +217,11 @@ const reorderMedicine = async (req, res) => {
 // Generate Stock Report
 const generateStockReport = async (req, res) => {
     try {
-        const inventory = await Inventory.find().populate('medicine');
+        const inventory = await Inventory.find()
+        .populate({
+            path: 'medicine',
+            populate: { path: 'category', select: 'name' }
+        });
 
         if (inventory.length === 0) {
             return res.status(404).json({ message: 'No inventory records found' });

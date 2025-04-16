@@ -8,8 +8,7 @@ export const AddMedicine = () => {
     const [data, setData] = useState({
         name: '',
         category: '',
-        reorderLevel: '',
-        price:''
+        reorderLevel: ''
     });
 
     const [categories, setCategories] = useState([]);
@@ -24,7 +23,6 @@ export const AddMedicine = () => {
         errorName: "",
         errorCategory: "",
         errorReorderLevel: "",
-        errorPrice:"",
         errorServer: ""
     });
 
@@ -77,8 +75,7 @@ export const AddMedicine = () => {
             setData({
                 name: '',
                 category: '',
-                reorderLevel: '',
-                price:''
+                reorderLevel: ''
             });
         } catch (error) {
             console.log(error);
@@ -111,7 +108,7 @@ export const AddMedicine = () => {
                         <option disabled selected value="">Select Category</option>
                         {
                             categories.map((categorie, i) => (
-                                <option value={categorie._id}>{categorie.name}</option>
+                                <option value={categorie.name}>{categorie.name}</option>
                             ))
                         }
                     </select>
@@ -123,20 +120,9 @@ export const AddMedicine = () => {
                         name="reorderLevel"
                         className="border p-2 w-full mt-2 rounded-md"
                         onChange={handleChange}
-                        min={0}
                         value={data.reorderLevel}
                     />
                     <span className="text-red-500 text-xs font-bold">{error.errorReorderLevel}</span>
-                    <input
-                        type="number"
-                        placeholder="Price"
-                        name="price"
-                        className="border p-2 w-full mt-2 rounded-md"
-                        onChange={handleChange}
-                        min={0}
-                        value={data.price}
-                    />
-                    <span className="text-red-500 text-xs font-bold">{error.errorPrice}</span>
 
                     <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded w-full hover:bg-blue-700">
                         Add Medicine

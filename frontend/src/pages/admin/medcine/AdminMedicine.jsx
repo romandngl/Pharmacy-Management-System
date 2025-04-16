@@ -72,7 +72,7 @@ export const AdminMedicine = () => {
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">#</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Name</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Category</th>
-
+                                  
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Reorder Level</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Action</th>
                                 </tr>
@@ -82,9 +82,9 @@ export const AdminMedicine = () => {
                                     medicine.map((medicine, index) => (
                                         <tr key={medicine._id} className="border-b hover:bg-gray-50">
                                             <td className="px-6 py-3 text-sm text-gray-700">{index + 1}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine?.name ?? "N/A"}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine?.category.name ?? "N/A"}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine?.reorderLevel ?? "N/A"}</td>
+                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine.name ?? "N/A"}</td>
+                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine.category ?? "N/A"}</td>
+                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine.reorderLevel ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700 space-x-4">
                                                 <button onClick={e => handleEdit(medicine?._id)}><Pencil size={20} /></button>
                                                 <button onClick={e => handleDelete(medicine?._id)}><Trash2 /></button>
