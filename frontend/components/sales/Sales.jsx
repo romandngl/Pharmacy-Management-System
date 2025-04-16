@@ -1,4 +1,4 @@
-import { Eye } from 'lucide-react';
+import { CirclePlus, Eye } from 'lucide-react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -25,7 +25,12 @@ const Sales = () => {
 
     return (
         <div className='w-full min-h-screen bg-gray-100 p-6'>
-            <h1 className='text-2xl font-semibold mb-4'>Total Sales</h1>
+            <div className='flex w-full justify-between px-5'>
+                <h1 className='text-2xl font-semibold mb-4'>Total Sales</h1>
+                <div>
+                    <CirclePlus onClick={e => navigate("/admin/sales/add")} />
+                </div>
+            </div>
             <div className='overflow-x-auto bg-white shadow-md rounded-lg'>
                 <table className='min-w-full table-auto'>
                     <thead className='bg-gray-100'>
@@ -49,7 +54,7 @@ const Sales = () => {
                                     <td className='px-6 py-3 text-sm text-gray-700'>{sale.totalPrice}</td>
                                     <td className='px-6 py-3 text-sm text-gray-700'>{new Date(sale.expiryDate).toLocaleDateString()}</td>
                                     <td className='px-6 py-3 text-sm text-gray-700'>{new Date(sale.saleDate).toLocaleDateString()}</td>
-                                    <td  className='px-6 cursor-pointer py-3 text-sm text-gray-700'><Eye onClick={e=>navigate(`/admin/sales/${sale._id}`)}/></td>
+                                    <td className='px-6 cursor-pointer py-3 text-sm text-gray-700'><Eye onClick={e => navigate(`/admin/sales/${sale._id}`)} /></td>
                                 </tr>
                             ))
                         ) : (
