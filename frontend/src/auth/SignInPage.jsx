@@ -3,6 +3,8 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import API_URL from "../../configuration/Api"
 import Cookies from 'js-cookie'
+import Toast from '../../components/toast/Toast'
+import { toast } from 'react-toastify'
 
 export const SignInPage = () => {
     const navigate = useNavigate()
@@ -56,7 +58,7 @@ export const SignInPage = () => {
         try {
             const res = await axios.post(API_URL + '/auth/login', data);
             const res_data = await res.data;
-            alert(res_data.message);
+            toast.success(res_data.message);
             Cookies.set('token', res_data.token);
             const token = res_data.token
             const userProfile = await axios.get(API_URL + "/auth/profile", {
@@ -64,7 +66,7 @@ export const SignInPage = () => {
                     Authorization: `Bearer ${token}`
                 }
             })
-            console.log("User Profile", userProfile.data.user)
+            // console.log("User Profile", userProfile.data.user)
             const redirect_to = redirect(userProfile?.data?.user?.role)
             navigate(redirect_to);
 
@@ -74,7 +76,7 @@ export const SignInPage = () => {
             })
         } catch (error) {
             console.log(error)
-            alert(error.response.data.message);
+            toast.error(error.response.data.message);
         }
     };
 
@@ -91,6 +93,7 @@ export const SignInPage = () => {
 
     return (
         <div className="container w-auto bg-slate-100 rounded-xl p-6 flex flex-col items-center">
+            <Toast/>
             <div className="mt-6 w-full max-w-md p-6 shadow-lg border rounded-lg">
                 <h1 className="text-3xl font-bold">Sign In</h1>
                 <p className="text-gray-600 mt-2">Access your account to manage your pharmacy system.</p>

@@ -2,6 +2,8 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link, useFetcher, useNavigate, useParams } from 'react-router-dom';
 import API_URL from '../../../../configuration/Api';
+import { toast } from 'react-toastify';
+import Toast from '../../../../components/toast/Toast';
 
 export const EditMedicine = () => {
     const { id } = useParams();
@@ -38,7 +40,7 @@ export const EditMedicine = () => {
                 setCurrentCategory(res?.data.medicines.category.name)
             } catch (error) {
                 console.log(error);
-                alert("Failed to fetch medicine details");
+                toast.success("Failed to fetch medicine details");
             }
         };
         fetchMedicine();
@@ -63,7 +65,7 @@ export const EditMedicine = () => {
         })
             .then((res) => {
                 console.log(res)
-                alert("Updated category for medicine")
+                toast.success("Updated category for medicine")
             }).catch((err) => console.log(err))
     }
 
@@ -89,18 +91,19 @@ export const EditMedicine = () => {
 
         try {
             const res = await axios.put(`${API_URL}/medicine/${id}`, data);
-            alert(res.data.message);
+            toast.success(res.data.message);
             window.location.reload();
             // navigate("/admin/medicine");
         } catch (error) {
             console.log(error);
-            alert(error.response.data.message);
+            toast.error(error.response.data.message);
         }
     };
 
     return (
         <div className="container min-h-screen w-auto bg-slate-100 rounded-xl p-6 flex flex-col items-center">
-            <div className="mt-6 w-full max-w-md p-6 shadow-lg border rounded-lg">
+           <Toast/>
+           <div className="mt-6 w-full max-w-md p-6 shadow-lg border rounded-lg">
                 <h1 className="text-3xl font-bold">Edit Medicine</h1>
                 <p className="text-gray-600 mt-2">Modify the medicine details.</p>
 

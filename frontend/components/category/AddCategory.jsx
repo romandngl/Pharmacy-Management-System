@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useState, useCallback } from 'react';
 import API_URL from '../../configuration/Api';
+import { toast } from 'react-toastify';
 
 const AddCategory = () => {
   const [formData, setFormData] = useState({
@@ -38,7 +39,7 @@ const AddCategory = () => {
     setIsSubmitting(true);
     try {
       const response = await axios.post(`${API_URL}/categories`, formData);
-      alert(response.data.message);
+      toast.success(response.data.message);
       // Reset form
       setFormData({ name: '', description: '' });
       setErrors({});

@@ -4,6 +4,7 @@ import axios from 'axios';
 import API_URL from '../../../../configuration/Api';
 import { getDateString } from '../../../../utils/ModifyDate';
 import { Pencil, Plus } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 
 export const AdminInventory = () => {
@@ -28,9 +29,7 @@ export const AdminInventory = () => {
         fetchInventory();
     }, [reset]);
 
-    function handleAdd() {
-        navigate("/admin/inventory/add")
-    }
+   
 
     const handleEdit = (item) => {
         setFormData({ medicineId: item.medicine._id, quantity: Number(item.quantity), medicineName: item.medicine.name, inventoryId: item._id });
@@ -55,17 +54,19 @@ export const AdminInventory = () => {
                 createdAt:formData.createdAt
             }
             const res = await axios.put(`${API_URL}/inventory/${formData.inventoryId}`,sendData);
-            alert(res.data.message);
+            toast.success(res.data.message);
             setShowModal(false);
             setReset(!reset);
             setFormData({ medicineId: '', quantity: '',medicineName: '', inventoryId: '' });
         } catch (error) {
-            alert(error.response.data.message);
+            toast.error(error.response.data.message);
         }
     };
 
 
-    
+    function handleAdd() {
+        navigate("/admin/inventory/add")
+    }
 
     return (
         <div className='w-full min-h-screen bg-gray-100'>

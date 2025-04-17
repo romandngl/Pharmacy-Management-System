@@ -4,6 +4,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import API_URL from '../../../../configuration/Api'
 import { getDateString } from "../../../../utils/ModifyDate"
 import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { toast } from 'react-toastify'
+import Toast from '../../../../components/toast/Toast'
 
 export const AdminMedicine = () => {
     const [medicine, setMedicine] = React.useState([])
@@ -24,7 +26,7 @@ export const AdminMedicine = () => {
 
     function handleDelete(id) {
         if (!id) {
-            alert("Invalid ID")
+            toast.error("Invalid ID")
         }
         const confirm = window.confirm("Are you sure you want to delete this medicine?")
         if (!confirm) {
@@ -32,7 +34,7 @@ export const AdminMedicine = () => {
         }
         axios.delete(API_URL + "/medicine/" + id)
             .then(res => {
-                alert("Medicine deleted successfully")
+                toast.success("Medicine deleted successfully")
                 setMedicine(medicine.filter(med => med._id !== id))
             }).catch(err => {
                 console.log(err)
@@ -41,7 +43,7 @@ export const AdminMedicine = () => {
 
     function handleEdit(id) {
         if (!id) {
-            alert("Invalid ID")
+            toast.error("Invalid ID")
             return
         }
         // Redirect to edit page
@@ -50,6 +52,7 @@ export const AdminMedicine = () => {
 
     return (
         <div className='w-full min-h-screen bg-gray-100'>
+            <Toast/>
             <div className="p-6">
                 {/* Cards Section */}
                 <div className="w-full bg-blue-500 flex justify-center items-center gap-6 mb-8">

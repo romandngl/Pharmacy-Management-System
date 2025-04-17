@@ -4,17 +4,18 @@ import axios from 'axios';
 import API_URL from '../../../../configuration/Api';
 import { getDateString } from '../../../../utils/ModifyDate';
 import { Pencil, Plus } from 'lucide-react';
+import { toast } from 'react-toastify';
+import Toast from '../../../../components/toast/Toast';
 
 
 const PharmacistInventory = () => {
     const navigate = useNavigate();
     const [inventory, setInventory] = useState([]);
+    const [reset, setReset] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({ medicineId: '', quantity: '', medicineName: '', inventoryId: '' });
-
-
     useEffect(() => {
         const fetchInventory = async () => {
             try {
@@ -26,16 +27,12 @@ const PharmacistInventory = () => {
                 setLoading(false);
             }
         };
-
         fetchInventory();
-    }, []);
+    }, [reset]);
 
-    function handleAdd() {
-        navigate("/pharmacist/inventory/add")
-    }
+
 
     const handleEdit = (item) => {
-        console.log("Item data",item)
         setFormData({ medicineId: item.medicine._id, quantity: Number(item.quantity), medicineName: item.medicine.name, inventoryId: item._id });
         setShowModal(true);
     };
@@ -55,21 +52,25 @@ const PharmacistInventory = () => {
             const sendData = {
                 medicineId: formData.medicineId,
                 quantity: formData.quantity,
+                createdAt: formData.createdAt
             }
             const res = await axios.put(`${API_URL}/inventory/${formData.inventoryId}`, sendData);
-            alert(res.data.message);
+            toast.success(res.data.message);
             setShowModal(false);
-            setFormData({ medicineId: '', quantity: '',medicineName: '', inventoryId: '' });
+            setReset(!reset);
+            setFormData({ medicineId: '', quantity: '', medicineName: '', inventoryId: '' });
         } catch (error) {
-            alert(error.response.data.message);
+            toast.error(error.response.data.message);
         }
     };
 
-
-
+    function handleAdd() {
+        navigate("/pharmacist/inventory/add")
+    }
 
     return (
         <div className='w-full min-h-screen bg-gray-100'>
+            <Toast/>
             <div className="p-6">
                 {/* Cards Section */}
                 <div className="w-full bg-blue-500 flex justify-center items-center gap-6 mb-8 p-6 text-white rounded-lg shadow-sm">
@@ -109,7 +110,7 @@ const PharmacistInventory = () => {
                                         <tr key={item._id} className="border-b hover:bg-gray-50">
                                             <td className="px-6 py-3 text-sm text-gray-700">{index + 1}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.name ?? "N/A"}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{item?.medicine.category.name ?? "N/A"}</td>
+                                            <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.category?.name ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.medicine.expiryDate) ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{item.quantity ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.stockLevel ?? "N/A"}</td>
@@ -118,7 +119,7 @@ const PharmacistInventory = () => {
                                             <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.medicine.updatedAt) ?? "N/A"}</td>
                                             <td className=" px-6 py-3 text-sm text-gray-700">
                                                 <button onClick={e => handleEdit(item)} className="text-blue-500 hover:text-blue-700">
-                                                <Pencil  size={20}/>
+                                                    <Pencil size={20} />
                                                 </button>
                                             </td>
                                         </tr>

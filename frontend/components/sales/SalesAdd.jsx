@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import API_URL from '../../configuration/Api';
+import { toast } from 'react-toastify';
 
 export const SalesAdd = () => {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ export const SalesAdd = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (sales.some(sale => !sale.medicineId || !sale.inventoryId || !sale.quantitySold)) {
-      alert('Please fill in all fields before submitting.');
+      toast.error('Please fill in all fields before submitting.');
       return;
     }
     try {
@@ -53,12 +54,12 @@ export const SalesAdd = () => {
       }));
 
       const res = await axios.post(`${API_URL}/sales/add`, { sales: formattedSales });
-      alert(res.data.message);
+      toast.success(res.data.message);
       setSales([{ medicineId: '', inventoryId: '', quantitySold: '' }]);
       navigate("/admin/sales");
     } catch (error) {
       console.error('Error submitting sales:', error);
-      alert(error?.response?.data?.error || 'An error occurred');
+      toast.error(error?.response?.data?.error || 'An error occurred');
     }
   };
 

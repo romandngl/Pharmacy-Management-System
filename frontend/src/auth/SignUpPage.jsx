@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import API_URL from "../../configuration/Api";
 import Cookies from 'js-cookie';
+import { toast } from 'react-toastify';
+import Toast from '../../components/toast/Toast';
 
 export const SignUpPage = () => {
   const [data, setData] = useState({
@@ -67,11 +69,19 @@ export const SignUpPage = () => {
     try {
       const res = await axios.post(`${API_URL}/auth/register`, data);
       const res_data = await res.data;
+      toast.success(res_data.message)
       setData({
         name: "",
         email: "",
         password: ""
       })
+      setError({
+        errorName: "",
+        errorEmail: "",
+        errorPassword: "",
+        errorServer: ""
+      })
+   
     } catch (error) {
       console.log(error?.response?.data.message);
       setError({
@@ -83,6 +93,7 @@ export const SignUpPage = () => {
 
   return (
     <div className="container w-auto bg-slate-100 rounded-xl p-6 flex flex-col items-center">
+      <Toast/>
       <div className="mt-6 w-full max-w-md p-6 shadow-lg border rounded-lg">
         <h1 className="text-3xl font-bold">Sign Up</h1>
         <p className="text-gray-600 mt-2">Create an account as patient.</p>
@@ -93,6 +104,7 @@ export const SignUpPage = () => {
             name="name"
             className="border p-2 w-full mt-2 rounded-md"
             onChange={handleChange}
+            value={data.name}
           />
           <span className="text-red-500 text-xs font-bold">{error.errorName}</span>
 
@@ -101,6 +113,7 @@ export const SignUpPage = () => {
             placeholder="Email"
             name="email"
             className="border p-2 w-full mt-2 rounded-md"
+            value={data.email}
             onChange={handleChange}
           />
           <span className="text-red-500 text-xs font-bold">{error.errorEmail}</span>
@@ -109,6 +122,7 @@ export const SignUpPage = () => {
             type="password"
             placeholder="Password"
             name="password"
+            value={data.password}
             className="border p-2 w-full mt-2 rounded-md"
             onChange={handleChange}
           />

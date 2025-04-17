@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import API_URL from '../../configuration/Api';
 import Cookies from 'js-cookie';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { toast } from 'react-toastify';
+import Toast from '../toast/Toast';
 
 const ReadCategory = () => {
     const [category, setCategory] = useState([]);
@@ -47,7 +49,7 @@ const ReadCategory = () => {
 
     const handleDelete = useCallback((id) => {
         if (!id) {
-            alert("Invalid ID");
+            toast.error("Invalid ID");
             return;
         }
         if (!window.confirm("Are you sure you want to delete this category?")) {
@@ -55,7 +57,7 @@ const ReadCategory = () => {
         }
         axios.delete(`${API_URL}/categories/${id}`)
             .then(() => {
-                alert("Category deleted successfully");
+                toast.success("Category deleted successfully");
                 setCategory(prev => prev.filter(cat => cat._id !== id));
             })
             .catch(err => console.error('Error deleting category:', err));
@@ -100,7 +102,7 @@ const ReadCategory = () => {
                 `http://localhost:3000/api/categories/${editModal.categoryId}`,
                 editModal.formData
             );
-            alert("Category updated successfully");
+            toast.success("Category updated successfully");
             setCategory(prev => prev.map(cat => 
                 cat._id === editModal.categoryId ? { ...cat, ...editModal.formData } : cat
             ));
@@ -113,6 +115,7 @@ const ReadCategory = () => {
 
     return (
         <div className='w-full min-h-screen bg-gray-100'>
+            <Toast/>
             <div className="p-6">
                 <div className="w-full bg-blue-500 flex justify-center items-center gap-6 mb-8">
                     <div className="flex gap-5 items-center text-white p-6 rounded-lg shadow-sm">

@@ -4,10 +4,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import API_URL from '../../../../configuration/Api'
 import { getDateString } from "../../../../utils/ModifyDate"
 import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { toast } from 'react-toastify'
+import Toast from '../../../../components/toast/Toast'
 
 const PharmacistMedicine = () => {
-    const [medicine, setMedicine] = React.useState([])
-    const navigate = useNavigate();
+   const [medicine, setMedicine] = React.useState([])
+const navigate = useNavigate();
     useEffect(() => {
         getAllMedicine().then(data => setMedicine(data)).catch((error) => console.log(error))
     }, [])
@@ -24,7 +26,7 @@ const PharmacistMedicine = () => {
 
     function handleDelete(id) {
         if (!id) {
-            alert("Invalid ID")
+            toast.error("Invalid ID")
         }
         const confirm = window.confirm("Are you sure you want to delete this medicine?")
         if (!confirm) {
@@ -32,7 +34,7 @@ const PharmacistMedicine = () => {
         }
         axios.delete(API_URL + "/medicine/" + id)
             .then(res => {
-                alert("Medicine deleted successfully")
+                toast.success("Medicine deleted successfully")
                 setMedicine(medicine.filter(med => med._id !== id))
             }).catch(err => {
                 console.log(err)
@@ -41,7 +43,7 @@ const PharmacistMedicine = () => {
 
     function handleEdit(id) {
         if (!id) {
-            alert("Invalid ID")
+            toast.error("Invalid ID")
             return
         }
         // Redirect to edit page
@@ -49,6 +51,7 @@ const PharmacistMedicine = () => {
     }
     return (
         <div className='w-full min-h-screen bg-gray-100'>
+            <Toast/>
             <div className="p-6">
                 {/* Cards Section */}
                 <div className="w-full bg-blue-500 flex justify-center items-center gap-6 mb-8">
@@ -62,7 +65,7 @@ const PharmacistMedicine = () => {
                 <div>
                     <h3 className="flex px-5 justify-between items-center text-2xl font-semibold mb-4">
                         <div>Medicine List</div>
-                        <div className='text-xl'><Link to={"/pharmacist/medicine/add"}><Plus /></Link></div>
+                        <div className='text-xl'><Link to={"/admin/medicine/add"}><Plus /></Link></div>
                     </h3>
                     <div className="overflow-x-auto bg-white shadow-md rounded-lg">
                         <table className="min-w-full table-auto">
@@ -71,6 +74,7 @@ const PharmacistMedicine = () => {
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">#</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Name</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Category</th>
+
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Reorder Level</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Action</th>
                                 </tr>
@@ -80,12 +84,12 @@ const PharmacistMedicine = () => {
                                     medicine.map((medicine, index) => (
                                         <tr key={medicine._id} className="border-b hover:bg-gray-50">
                                             <td className="px-6 py-3 text-sm text-gray-700">{index + 1}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine.name ?? "N/A"}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine.category ?? "N/A"}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine.reorderLevel ?? "N/A"}</td>
+                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine?.name ?? "N/A"}</td>
+                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine?.category.name ?? "N/A"}</td>
+                                            <td className="px-6 py-3 text-sm text-gray-700">{medicine?.reorderLevel ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700 space-x-4">
                                                 <button onClick={e => handleEdit(medicine?._id)}><Pencil size={20} /></button>
-                                                <button onClick={e => handleDelete(medicine?._id)}><Trash2 size={20} /></button>
+                                                <button onClick={e => handleDelete(medicine?._id)}><Trash2 /></button>
                                             </td>
 
 

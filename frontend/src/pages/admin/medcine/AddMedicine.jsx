@@ -2,6 +2,8 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import API_URL from '../../../../configuration/Api';
+import { toast } from 'react-toastify';
+import Toast from '../../../../components/toast/Toast';
 
 export const AddMedicine = () => {
     
@@ -72,7 +74,7 @@ export const AddMedicine = () => {
         try {
             const res = await axios.post(API_URL + '/medicine/add', data);
             const res_data = await res.data;
-            alert(res_data.message);
+            toast.success(res_data.message);
             // navigate("/admin/medicine"); // Redirect to the list page after successful submission
             setData({
                 name: '',
@@ -82,12 +84,13 @@ export const AddMedicine = () => {
             });
         } catch (error) {
             console.log(error);
-            alert(error.response.data.message);
+            toast.error(error.response.data.message);
         }
     };
 
     return (
         <div className="container min-h-screen w-auto bg-slate-100 rounded-xl p-6 flex flex-col items-center">
+          <Toast/>
             <div className="mt-6 w-full max-w-md p-6 shadow-lg border rounded-lg">
                 <h1 className="text-3xl font-bold">Add Medicine</h1>
                 <p className="text-gray-600 mt-2">Fill out the form to add a new medicine to the inventory.</p>
