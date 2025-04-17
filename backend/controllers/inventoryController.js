@@ -3,27 +3,38 @@ const Medicine = require('../models/Medicine');
 const getMedicine = async (req, res) => {
     try {
         const { medicineId } = req.params;
+        const page = parseInt(req.query.page) || 1; // Default to page 1
+        const limit = 5
+        const skip = limit ? (page - 1) * limit : 0; // Skip calculation
 
-        let medicines;
         if (medicineId) {
             // Fetch single medicine with category name
-            medicines = await Medicine.findById(medicineId)
-                .populate('category', 'name');
-            if (!medicines) {
+            const medicine = await Medicine.findById(medicineId).populate('category', 'name');
+            if (!medicine) {
                 return res.status(404).json({ message: 'Medicine not found' });
             }
-        } else {
-            // Fetch all medicines with category names
-            medicines = await Medicine.find({ isDeleted: false })
-                .populate('category', 'name');
+            return res.status(200).json({ message: 'Medicine retrieved successfully', medicine });
         }
 
-        res.status(200).json({ message: 'Medicines retrieved successfully', medicines });
+        // Fetch all medicines with category names, supporting dynamic pagination
+        let medicinesQuery = Medicine.find({ isDeleted: false }).populate('category', 'name');
+        if (limit) {
+            medicinesQuery = medicinesQuery.skip(skip).limit(limit);
+        }
+        const medicines = await medicinesQuery;
+        const totalMedicines = await Medicine.countDocuments({ isDeleted: false });
+        const totalPages = limit ? Math.ceil(totalMedicines / limit) : 1;
+
+        res.status(200).json({
+            message: 'Medicines retrieved successfully',
+            currentPage: page,
+            totalPages,
+            medicines
+        });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
-
 
 // Add New Medicine
 const addMedicine = async (req, res) => {
@@ -234,7 +245,12 @@ const generateStockReport = async (req, res) => {
 };
 const generateDetailedStockReport = async (req, res) => {
     try {
-        const inventory = await Inventory.aggregate([
+        const page = parseInt(req.query.page) || 1; // Default to page 1
+        const limit = 2
+        const skip = limit ? (page - 1) * limit : 0; // Calculate skip value
+
+        // Aggregate inventory data
+        let inventoryAggregation = Inventory.aggregate([
             {
                 $group: {
                     _id: "$medicine",
@@ -243,15 +259,29 @@ const generateDetailedStockReport = async (req, res) => {
             }
         ]);
 
+        // Apply pagination if limit is provided
+        if (limit) {
+            inventoryAggregation = inventoryAggregation.skip(skip).limit(limit);
+        }
+
+        const inventory = await inventoryAggregation;
+
         if (inventory.length === 0) {
             return res.status(404).json({ message: "No inventory records found" });
         }
+
+        // Get total count (without pagination)
+        const totalRecords = await Inventory.countDocuments();
+        const totalPages = limit ? Math.ceil(totalRecords / limit) : 1;
 
         // Populate Medicine details
         const report = await Medicine.populate(inventory, { path: "_id", select: "name category" });
 
         res.json({
             message: "Detailed Stock Report Generated",
+            currentPage: page,
+            totalPages,
+            totalRecords,
             report
         });
 
@@ -259,6 +289,7 @@ const generateDetailedStockReport = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
 
 module.exports = {
     addMedicine,

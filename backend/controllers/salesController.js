@@ -76,19 +76,45 @@ const addSales = async (req, res) => {
 
 const getAllSales = async (req, res) => {
     try {
-        const sales = await Sales.find()
+        const page = parseInt(req.query.page) || 1; // Default to page 1
+        const limit = 5
+        const skip = limit ? (page - 1) * limit : 0; // Calculate skip value
+
+        let salesQuery = Sales.find()
             .populate({
                 path: 'medicine',
                 select: 'name category',
-                populate: { path: 'category', select: 'name' } // Populate category details
+                populate: { path: 'category', select: 'name' } 
             })
-            .populate('inventoryId', 'expiryDate quantity'); // Get expiry date and quantity
+            .populate('inventoryId', 'expiryDate quantity');
 
-        res.status(200).json({ message: 'Sales retrieved successfully', sales });
+        if (limit) {
+            salesQuery = salesQuery.skip(skip).limit(limit);
+        }
+
+        const sales = await salesQuery;
+
+        if (sales.length === 0) {
+            return res.status(404).json({ message: "No sales records found" });
+        }
+
+        // Get total count (without pagination)
+        const totalSales = await Sales.countDocuments();
+        const totalPages = limit ? Math.ceil(totalSales / limit) : 1;
+
+        res.status(200).json({
+            message: "Sales retrieved successfully",
+            currentPage: page,
+            totalPages,
+            totalSales,
+            sales
+        });
+
     } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
 
 const getSaleById = async (req, res) => {
     try {
