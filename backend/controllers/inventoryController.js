@@ -228,21 +228,59 @@ const reorderMedicine = async (req, res) => {
 // Generate Stock Report
 const generateStockReport = async (req, res) => {
     try {
+        const { status: statusFilter } = req.params; // Get status from URL params
         const inventory = await Inventory.find()
-        .populate({
-            path: 'medicine',
-            populate: { path: 'category', select: 'name' }
-        });
+            .populate({
+                path: 'medicine',
+                populate: { path: 'category', select: 'name' }
+            });
 
         if (inventory.length === 0) {
             return res.status(404).json({ message: 'No inventory records found' });
         }
 
-        res.json({ message: 'Stock Report Generated', inventory });
+        // Calculate the status based on expiry date
+        const currentDate = new Date();
+
+        const updatedInventory = inventory.map(item => {
+            const expiryDate = new Date(item.expiryDate);
+            const timeDiff = expiryDate - currentDate; // Time difference in milliseconds
+            const daysRemaining = Math.floor(timeDiff / (1000 * 3600 * 24)); // Convert time difference to days
+
+            let status = "low-priority"; // Default status
+
+            if (daysRemaining < 0) {
+                status = "expired"; // If expired
+            } else if (daysRemaining <= 90) {
+                status = "high-priority"; // If expiry date within 3 months
+            } else if (daysRemaining <= 180) {
+                status = "med-priority"; // If expiry date within 6 months
+            }
+
+            // Add status to the inventory item
+            return {
+                ...item.toObject(), // Convert Mongoose document to plain object
+                status
+            };
+        });
+
+        // If a status filter is provided, filter inventory by status
+        let filteredInventory = updatedInventory;
+        if (statusFilter) {
+            filteredInventory = updatedInventory.filter(item => item.status === statusFilter);
+        }
+
+        // If no records match the filter
+        if (filteredInventory.length === 0) {
+            return res.status(404).json({ message: `No inventory records found with status: ${statusFilter}` });
+        }
+
+        res.json({ message: 'Stock Report Generated', inventory: filteredInventory });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
 const generateDetailedStockReport = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1; // Default to page 1

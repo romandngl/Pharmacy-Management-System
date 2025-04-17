@@ -12,7 +12,7 @@ router.post('/medicine/add', addMedicine);
 
 router.put('/inventory/:inventoryId', updateInventory);
 router.post('/inventory/reorder', reorderMedicine);
-router.get('/inventory/report', generateStockReport);
+router.get('/inventory/report/:status?', generateStockReport);
 router.get('/inventory/details', generateDetailedStockReport);
 router.post('/inventory', addToInventory);
 
