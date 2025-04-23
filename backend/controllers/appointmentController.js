@@ -62,19 +62,8 @@ const getAppointmentById = async (req, res) => {
     }
 };
 
-const updateAppointment = async (req, res) => {
-    try {
-        const appointment = await Appointment.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!appointment) return res.status(404).json({ message: "Appointment not found" });
-        res.status(200).json(appointment);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
 module.exports = {
     createAppointment,
     getAppointments,
-    getAppointmentById,
-    updateAppointment
+    getAppointmentById
 };
