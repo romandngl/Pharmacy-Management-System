@@ -57,5 +57,16 @@ const getUserProfile = (req, res) => {
 };
 
 
-module.exports = { registerUser, loginUser, getUserProfile };
+const getAllUsernames = async (req, res) => {
+    try {
+        const users = await User.find({}, { name: 1 }).lean();
+        const usernames = users.map(user => user.name);
+        const count = users.length;
+        res.json({ usernames, count });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: { message: error.message, stack: error.stack } });
+    }
+};
+
+module.exports = { registerUser, loginUser, getUserProfile, getAllUsernames };
 

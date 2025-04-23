@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const verifyToken = require('../middleware/authMiddleware');
-const { addMedicine, getMedicine, deleteMedicine, editMedicine, addToInventory, updateMedicineCategory, updateInventory, reorderMedicine, generateStockReport, generateDetailedStockReport } = require('../controllers/inventoryController');
+const { addMedicine, getMedicine, deleteMedicine, editMedicine, getMedicineNames, addToInventory, updateMedicineCategory, updateInventory, reorderMedicine, generateStockReport, generateDetailedStockReport } = require('../controllers/inventoryController');
 
 router.put('/medicine/:medicineId/category', updateMedicineCategory);
 router.put('/medicine/:medicineId', editMedicine);
 router.get('/medicine/:medicineId?', getMedicine);
-router.delete('/medicine/:medicineId', deleteMedicine);
+// router.delete('/medicine/:medicineId', deleteMedicine);not letting the pharmacist delete medicines
 router.post('/medicine/add', addMedicine);
+router.get('/medicines', getMedicineNames);
 
 
 router.put('/inventory/:inventoryId', updateInventory);

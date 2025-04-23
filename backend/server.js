@@ -2,11 +2,16 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors')
 require('dotenv').config();
+require('./models/User'); 
+require('./models/Patient');
+require('./models/Pharmacist'); 
+require('./models/Medicine');
 
 const authRoutes = require('./routes/auth');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const salesRoutes = require('./routes/salesRoutes');
+const appointmentsRoutes = require('./routes/appointmentRoutes');
 
 const app = express();
 app.use(express.json());
@@ -20,6 +25,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api', inventoryRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/sales', salesRoutes);
+app.use('/api/appointments', appointmentsRoutes);
 
 
 const PORT = process.env.PORT || 3000;

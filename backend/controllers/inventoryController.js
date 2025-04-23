@@ -36,6 +36,8 @@ const getMedicine = async (req, res) => {
     }
 };
 
+
+
 // Add New Medicine
 const addMedicine = async (req, res) => {
     try {
@@ -126,6 +128,17 @@ const updateMedicineCategory = async (req, res) => {
         await medicine.save();
 
         res.json({ message: 'Medicine category updated successfully', medicine });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+// Get all medicine names
+const getMedicineNames = async (req, res) => {
+    try {
+        const medicineNames = await Medicine.distinct('name');
+        const medicineCount = await Medicine.countDocuments({ isDeleted: false });
+        res.json({ message: 'All medicine names', medicineNames, medicineCount });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
@@ -335,6 +348,7 @@ module.exports = {
     deleteMedicine,
     editMedicine,
     updateMedicineCategory,
+    getMedicineNames,
 
     addToInventory,
     updateInventory,
