@@ -6,12 +6,14 @@ require('./models/User');
 require('./models/Patient');
 require('./models/Pharmacist'); 
 require('./models/Medicine');
+require('./models/Notification');
 
 const authRoutes = require('./routes/auth');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const salesRoutes = require('./routes/salesRoutes');
 const appointmentsRoutes = require('./routes/appointmentRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 app.use(express.json());
@@ -26,6 +28,8 @@ app.use('/api', inventoryRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/appointments', appointmentsRoutes);
+app.use('/api/notifications', notificationRoutes);
+
 
 
 const PORT = process.env.PORT || 3000;

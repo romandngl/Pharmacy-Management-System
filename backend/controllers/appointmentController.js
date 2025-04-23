@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Appointment = require('../models/Appointment');
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 
 const createAppointment = async (req, res) => {
     try {
@@ -19,6 +20,12 @@ const createAppointment = async (req, res) => {
 
         const newAppointment = new Appointment({ patient, date, time });
         await newAppointment.save();
+
+        await Notification.create({
+            user: patient,
+            message: `Your appointment has been scheduled for ${date} at ${time}.`
+        });
+
         res.status(201).json(newAppointment);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -66,6 +73,12 @@ const cancelAppointment = async (req, res) => {
     try {
         const appointment = await Appointment.findByIdAndUpdate(req.params.id, { status: 'canceled' }, { new: true });
         if (!appointment) return res.status(404).json({ message: "Appointment not found" });
+
+        await Notification.create({
+            user: appointment.patient,
+            message: `Your appointment scheduled for ${appointment.date} at ${appointment.time} has been canceled.`
+        });
+
         res.status(200).json(appointment);
     } catch (error) {
         res.status(500).json({ error: error.message });

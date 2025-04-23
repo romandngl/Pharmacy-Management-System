@@ -1,3 +1,4 @@
+const Medicine = require('../models/Medicine');
 const Category = require('../models/Category');
 
 // Get All Categories
@@ -64,7 +65,8 @@ const updateCategory = async (req, res) => {
     }
 };
 
-// Delete Category
+const defaultCategoryName = "Uncategorized"; 
+
 const deleteCategory = async (req, res) => {
     try {
         const { categoryId } = req.params;
@@ -74,8 +76,23 @@ const deleteCategory = async (req, res) => {
             return res.status(404).json({ message: 'Category not found' });
         }
 
+        let defaultCategory = await Category.findOne({ name: defaultCategoryName });
+        if (!defaultCategory) {
+            defaultCategory = new Category({
+                name: defaultCategoryName,
+                description: 'Default category for uncategorized medicines'
+            });
+            await defaultCategory.save();
+        }
+
+        await Medicine.updateMany(
+            { category: categoryId },
+            { $set: { category: defaultCategory._id } }
+        );
+
         await category.deleteOne();
-        res.status(200).json({ message: 'Category deleted successfully' });
+
+        res.status(200).json({ message: 'Category deleted successfully, medicines updated to default category' });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
