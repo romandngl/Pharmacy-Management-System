@@ -6,6 +6,6 @@ const router = express.Router();
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/users', getAllUsernames);
-router.post('/profile', verifyToken, getUserProfile); //this is post pnot get
+router.get('/profile', verifyToken, getUserProfile);
 
 module.exports = router;
