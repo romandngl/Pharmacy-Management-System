@@ -1,163 +1,234 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Link, useFetcher, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import API_URL from '../../../../configuration/Api';
 import { toast } from 'react-toastify';
 import Toast from '../../../../components/toast/Toast';
+import { Pill, ArrowLeft } from 'lucide-react';
 
 export const EditMedicine = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [currentCategory, setCurrentCategory] = useState("")
     const [data, setData] = useState({
         name: '',
-        reorderLevel: ''
+        category: '',
+        reorderLevel: '',
+        price: '',
     });
-
-    const [categories, setCategories] = useState([])
-
-    useEffect(() => {
-        axios.get(API_URL + "/categories")
-            .then((res) => {
-                setCategories(res.data.categories)
-                console.log(res.data.categories)
-            }).catch((error) => console.log("Error when fetching categories", error))
-    }, [])
-
-
+    const [categories, setCategories] = useState([]);
     const [error, setError] = useState({
-        errorName: "",
-        errorCategory: "",
-        errorReorderLevel: "",
-        errorServer: ""
+        errorName: '',
+        errorCategory: '',
+        errorReorderLevel: '',
+        errorPrice: '',
+        errorServer: '',
     });
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await axios.get(`${API_URL}/categories`);
+                setCategories(res.data.categories || []);
+            } catch (err) {
+                toast.error('Failed to fetch categories.');
+            }
+        };
+
         const fetchMedicine = async () => {
             try {
                 const res = await axios.get(`${API_URL}/medicine/${id}`);
-                setData(res?.data.medicines);
-                setCurrentCategory(res?.data.medicines.category.name)
+                const medicine = res.data.medicine;
+                setData({
+                    name: medicine.name || '',
+                    category: medicine.category?._id || '',
+                    reorderLevel: medicine.reorderLevel || '',
+                    price: medicine.price || '',
+                });
             } catch (error) {
-                console.log(error);
-                toast.success("Failed to fetch medicine details");
+                toast.error('Failed to fetch medicine details.');
+            } finally {
+                setLoading(false);
             }
         };
+
+        fetchCategories();
         fetchMedicine();
     }, [id]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setData({
-            ...data,
-            [name]: value
-        });
-        setError({
-            ...error,
-            [name === "name" ? "errorName" : name === "category" ? "errorCategory" : "errorReorderLevel"]: ""
-        });
+        setData({ ...data, [name]: value });
+        setError({ ...error, [name === 'name' ? 'errorName' : name === 'category' ? 'errorCategory' : name === 'reorderLevel' ? 'errorReorderLevel' : 'errorPrice']: '' });
     };
-
-    const handleChangeCategory = (e) => {
-        const { name, value } = e.target
-        axios.put(API_URL + "/medicine/" + id + "/category", {
-            "categoryId": value
-        })
-            .then((res) => {
-                console.log(res)
-                toast.success("Updated category for medicine")
-            }).catch((err) => console.log(err))
-    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const { name, category, reorderLevel } = data;
+        const { name, category, reorderLevel, price } = data;
 
         let errors = {
-            errorName: "",
-            errorCategory: "",
-            errorReorderLevel: "",
-            errorServer: ""
+            errorName: '',
+            errorCategory: '',
+            errorReorderLevel: '',
+            errorPrice: '',
+            errorServer: '',
         };
 
-        if (name === "") errors.errorName = "Name is required";
-        if (category === "") errors.errorCategory = "Category is required";
-        if (reorderLevel === "") errors.errorReorderLevel = "Reorder level is required";
+        if (!name) errors.errorName = 'Medicine name is required';
+        if (!category) errors.errorCategory = 'Category is required';
+        if (!reorderLevel) errors.errorReorderLevel = 'Reorder level is required';
+        if (!price) errors.errorPrice = 'Price is required';
 
-        if (errors.errorName || errors.errorCategory || errors.errorReorderLevel) {
+        if (errors.errorName || errors.errorCategory || errors.errorReorderLevel || errors.errorPrice) {
             setError(errors);
             return;
         }
 
+        setLoading(true);
         try {
-            const res = await axios.put(`${API_URL}/medicine/${id}`, data);
+            const res = await axios.put(`${API_URL}/medicine/${id}`, {
+                name,
+                category,
+                reorderLevel: Number(reorderLevel),
+                price: Number(price),
+            });
             toast.success(res.data.message);
-            window.location.reload();
-            // navigate("/admin/medicine");
+            setTimeout(() => {
+                navigate('/admin/medicine');
+            }, 1500);
         } catch (error) {
-            console.log(error);
-            toast.error(error.response.data.message);
+            toast.error(error.response?.data?.message || 'Failed to update medicine');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="container min-h-screen w-auto bg-slate-100 rounded-xl p-6 flex flex-col items-center">
-           <Toast/>
-           <div className="mt-6 w-full max-w-md p-6 shadow-lg border rounded-lg">
-                <h1 className="text-3xl font-bold">Edit Medicine</h1>
-                <p className="text-gray-600 mt-2">Modify the medicine details.</p>
+        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6 flex justify-center items-center">
+            <Toast />
+            <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-6">
+                <div className="flex items-center gap-2 mb-6">
+                    <Pill className="text-blue-600" size={24} />
+                    <h1 className="text-2xl font-bold text-gray-800">Edit Medicine</h1>
+                </div>
+                <p className="text-gray-600 mb-6">Modify the medicine details below.</p>
 
-                {data.name !== undefined ? ( // Render form only when data is loaded
+                {loading ? (
+                    <div className="flex justify-center items-center h-32">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                    </div>
+                ) : (
                     <form onSubmit={handleSubmit}>
-                        <input
-                            type="text"
-                            placeholder="Medicine Name"
-                            name="name"
-                            className="border p-2 w-full mt-2 rounded-md"
-                            onChange={handleChange}
-                            value={data.name || ''}
-                        />
-                        <span className="text-red-500 text-xs font-bold">{error.errorName}</span>
+                        {/* Medicine Name Input */}
+                        <div className="mb-4">
+                            <label htmlFor="name" className="block text-sm font-medium text-gray-600 mb-1">
+                                Medicine Name
+                            </label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                onChange={handleChange}
+                                value={data.name}
+                                placeholder="Enter medicine name"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            {error.errorName && (
+                                <span className="text-red-500 text-xs mt-1">{error.errorName}</span>
+                            )}
+                        </div>
 
-                        <select
+                        {/* Category Dropdown */}
+                        <div className="mb-4">
+                            <label htmlFor="category" className="block text-sm font-medium text-gray-600 mb-1">
+                                Category
+                            </label>
+                            <select
+                                id="category"
+                                name="category"
+                                onChange={handleChange}
+                                value={data.category}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="">Select a category</option>
+                                {categories.map((category) => (
+                                    <option key={category._id} value={category._id}>
+                                        {category.name}
+                                    </option>
+                                ))}
+                            </select>
+                            {error.errorCategory && (
+                                <span className="text-red-500 text-xs mt-1">{error.errorCategory}</span>
+                            )}
+                        </div>
 
-                            placeholder="Category"
-                            name="category"
-                            className="border p-2 w-full mt-2 rounded-md"
-                            onChange={handleChangeCategory}
+                        {/* Reorder Level Input */}
+                        <div className="mb-4">
+                            <label htmlFor="reorderLevel" className="block text-sm font-medium text-gray-600 mb-1">
+                                Reorder Level
+                            </label>
+                            <input
+                                type="number"
+                                id="reorderLevel"
+                                name="reorderLevel"
+                                onChange={handleChange}
+                                value={data.reorderLevel}
+                                min="0"
+                                placeholder="Enter reorder level"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            {error.errorReorderLevel && (
+                                <span className="text-red-500 text-xs mt-1">{error.errorReorderLevel}</span>
+                            )}
+                        </div>
+
+                        {/* Price Input */}
+                        <div className="mb-6">
+                            <label htmlFor="price" className="block text-sm font-medium text-gray-600 mb-1">
+                                Price
+                            </label>
+                            <input
+                                type="number"
+                                id="price"
+                                name="price"
+                                onChange={handleChange}
+                                value={data.price}
+                                min="0"
+                                step="0.01"
+                                placeholder="Enter price"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            {error.errorPrice && (
+                                <span className="text-red-500 text-xs mt-1">{error.errorPrice}</span>
+                            )}
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className={`w-full py-2 px-6 rounded-lg text-white font-medium transition-colors duration-200 ${
+                                loading
+                                    ? 'bg-blue-400 cursor-not-allowed'
+                                    : 'bg-blue-600 hover:bg-blue-700'
+                            }`}
                         >
-                            <option value={currentCategory}>{currentCategory}</option>
-                            {
-                                categories && categories.map((c, i) => (
-                                    <option key={i} value={c._id}>{c.name}</option>
-                                ))
-                            }
-                        </select>
-                        <span className="text-red-500 text-xs font-bold">{error.errorCategory}</span>
-
-                        <input
-                            type="number"
-                            placeholder="Reorder Level"
-                            name="reorderLevel"
-                            className="border p-2 w-full mt-2 rounded-md"
-                            onChange={handleChange}
-                            value={data.reorderLevel || ''}
-                        />
-                        <span className="text-red-500 text-xs font-bold">{error.errorReorderLevel}</span>
-
-                        <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded w-full hover:bg-blue-700">
-                            Update Medicine
+                            {loading ? 'Updating...' : 'Update Medicine'}
                         </button>
                     </form>
-                ) : (
-                    <p>Loading...</p> // Show loading message until data is available
                 )}
 
-                <div className="w-full flex-col items-center flex justify-center py-4">
-                    <p>Want to go back? <Link to="/admin/medicine"> <span className="text-blue-500">Medicine List</span></Link></p>
+                <div className="mt-4 text-center">
+                    <Link
+                        to="/admin/medicine"
+                        className="flex items-center justify-center gap-2 text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                    >
+                        <ArrowLeft size={16} />
+                        Back to Medicine List
+                    </Link>
                 </div>
             </div>
         </div>
     );
-
 };
+
+export default EditMedicine;

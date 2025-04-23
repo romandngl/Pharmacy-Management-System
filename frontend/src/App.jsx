@@ -25,12 +25,14 @@ import PharmacistMedicine from './pages/pharmacist/medicine/PharmacistMedicine';
 import PharmacistInventory from './pages/pharmacist/inventory/PharmacistInventory';
 import AdminReadCategory from './pages/admin/category/AdminReadCategory';
 import PharmacistReadCategory from './pages/pharmacist/category/PharmacistReadCategory';
-import AddCategory from '../components/category/AddCategory';
 import AdminAddCategory from './pages/admin/category/AdminAddCategory';
 import PharmacistAddCategory from './pages/pharmacist/category/PharmacistAddCategory';
 import AdminSales from './pages/admin/sales/AdminSales';
 import SalesDetailsPage from '../components/sales/SalesDetailsPage';
 import AdminSalesAdd from './pages/admin/sales/AdminSalesAdd';
+import { PatientViewSchedule } from './pages/patent/schedule/PatientViewSchedule';
+import ViewAppointments from './pages/pharmacist/appointment/ViewAppointments';
+import { ViewAppointmentById } from './pages/pharmacist/appointment/ViewAppointmentById';
 function App() {
   const router = createBrowserRouter([
     {
@@ -70,9 +72,14 @@ function App() {
             <PatientDashboard />
         },
         {
-          path: "/patient/schedule", element:
+          path: "/patient/schedule/add", element:
             <PatientSchedule />
+        },
+        {
+          path: "/patient/schedule/view", element:
+            <PatientViewSchedule />
         }
+
       ]
     }
     , {
@@ -138,6 +145,12 @@ function App() {
         },
         {
           path: "/pharmacist/add/category", element: <PharmacistAddCategory />
+        },
+        {
+          path: "/pharmacist/appointments", element: <ViewAppointments />
+        },
+        {
+          path: "/pharmacist/appointments/view/:id", element: <ViewAppointmentById />
         }
       ]
     }

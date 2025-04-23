@@ -122,7 +122,7 @@ export const SignInPage = () => {
                     </button>
                 </form>
                 <div className='w-full flex-col items-center flex justify-center py-4'>
-                    <p>Do not have account? <Link to={"/"}> <span className='text-blue-500'>Sign Up</span></Link></p>
+                    <p>Do not have account? <Link to={"/auth/patient/signup"}> <span className='text-blue-500'>Sign Up</span></Link></p>
                     <Link to="/"><span className='font-bold'>Go back</span></Link>
                 </div>
             </div>
