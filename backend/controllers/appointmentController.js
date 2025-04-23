@@ -62,8 +62,63 @@ const getAppointmentById = async (req, res) => {
     }
 };
 
+const cancelAppointment = async (req, res) => {
+    try {
+        const appointment = await Appointment.findByIdAndUpdate(req.params.id, { status: 'canceled' }, { new: true });
+        if (!appointment) return res.status(404).json({ message: "Appointment not found" });
+        res.status(200).json(appointment);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const completeAppointment = async (req, res) => {
+    try {
+        const appointment = await Appointment.findByIdAndUpdate(req.params.id, { status: 'completed' }, { new: true });
+        if (!appointment) return res.status(404).json({ message: "Appointment not found" });
+        res.status(200).json(appointment);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const getAppointmentsByStatus = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10
+        const skip = limit ? (page - 1) * limit : 0;
+        const status = req.params.status;
+
+        let appointmentsQuery = Appointment.find({ status });
+
+        if (limit) {
+            appointmentsQuery = appointmentsQuery.skip(skip).limit(limit);
+        }
+
+        const [appointments, totalAppointments] = await Promise.all([
+            Appointment.find({ status }).skip(skip).limit(limit),
+            Appointment.countDocuments({ status })
+        ]);
+
+        const totalPages = Math.ceil(totalAppointments / limit);
+
+        res.status(200).json({
+            message: `Appointments retrieved successfully by status ${status}`,
+            page,
+            totalPages,
+            totalAppointments,
+            appointments
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     createAppointment,
     getAppointments,
-    getAppointmentById
+    getAppointmentById,
+    completeAppointment,
+    cancelAppointment,
+    getAppointmentsByStatus
 };
