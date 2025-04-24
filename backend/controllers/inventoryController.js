@@ -1,5 +1,25 @@
 const Inventory = require('../models/Inventory');
+const User = require('../models/User');
 const Medicine = require('../models/Medicine');
+const Notification = require('../models/Notification');
+
+const createNotification = async (userId, message, relatedType, relatedId) => {
+    try {
+        const user = await User.findOne({ role: userId }); // Assuming 'admin' is a role
+        if (!user) throw new Error(`User with role '${userId}' not found`);
+
+        await Notification.create({
+            userId: user._id,
+            message,
+            relatedType,
+            relatedId
+        });
+    } catch (err) {
+        console.error('Error creating notification:', err.message);
+    }
+};
+
+
 const getMedicine = async (req, res) => {
     try {
         const { medicineId } = req.params;
@@ -53,14 +73,18 @@ const addMedicine = async (req, res) => {
             return res.status(400).json({ message: 'Medicine already exists' });
         }
 
-        medicine = new Medicine({ name, category, reorderLevel, price }); // ✅ Include price
+        medicine = new Medicine({ name, category, reorderLevel, price });
         await medicine.save();
+
+        const notificationMessage = `New medicine ${name} added to the inventory.`;
+        await createNotification('admin', notificationMessage, 'medicine', medicine._id);
 
         res.status(201).json({ message: 'Medicine added', medicine });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
 
 // Soft Delete Medicine
 const deleteMedicine = async (req, res) => {
@@ -79,6 +103,9 @@ const deleteMedicine = async (req, res) => {
         // Mark medicine as deleted
         medicine.isDeleted = true;
         await medicine.save();
+
+        const notificationMessage = `Medicine ${medicine.name} has been deleted (soft delete).`;
+        await createNotification('admin', notificationMessage, 'medicine', medicine._id);
 
         res.json({ message: 'Medicine deleted (soft delete)', medicine });
     } catch (error) {
@@ -103,6 +130,9 @@ const editMedicine = async (req, res) => {
         if (price !== undefined && price > 0) medicine.price = price;
 
         await medicine.save();
+
+        const notificationMessage = `Medicine ${medicine.name} has been updated.`;
+        await createNotification('admin', notificationMessage, 'medicine', medicine._id);
 
         res.json({ message: 'Medicine updated successfully', medicine });
     } catch (error) {
@@ -156,6 +186,9 @@ const addToInventory = async (req, res) => {
         const inventoryItem = new Inventory({ medicine: medicineId, quantity, expiryDate});
         await inventoryItem.save();
 
+        const notificationMessage = `Medicine ${medicine.name} added to inventory with quantity ${quantity}.`;
+        await createNotification('admin', notificationMessage, 'inventory', inventoryItem._id);
+
         res.status(201).json({ message: 'Medicine added to inventory', inventoryItem });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -187,12 +220,10 @@ const updateInventory = async (req, res) => {
             inventory.expiryDate = expiryDate;
         }
 
-        // Check if at least one field is being updated
-        if (quantity === undefined && expiryDate === undefined) {
-            return res.status(400).json({ message: 'No fields to update' });
-        }
-
         await inventory.save();
+
+        const notificationMessage = `Inventory for medicine updated: ${inventory.medicine.name}, quantity now ${inventory.quantity}.`;
+        await createNotification('admin', notificationMessage, 'inventory', inventory._id);
         console.log(`Updated inventory: ${JSON.stringify(inventory)}`);
 
         // Only update stock level if quantity was changed
@@ -232,6 +263,9 @@ const reorderMedicine = async (req, res) => {
         if (currentStock >= medicine.reorderLevel) {
             return res.status(400).json({ message: 'Stock level is sufficient, reorder not required' });
         }
+
+        const notificationMessage = `Reorder needed for medicine: ${medicine.name}. Current stock is below reorder level.`;
+        await createNotification('admin', notificationMessage, 'medicine', medicine._id);
 
         res.json({ message: `Reorder needed for ${medicine.name}, please place an order.` });
     } catch (error) {

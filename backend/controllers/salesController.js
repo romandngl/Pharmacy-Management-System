@@ -1,8 +1,28 @@
 const mongoose = require('mongoose');
 const Sales = require('../models/Sales');
+const User = require('../models/User');
 const Inventory = require('../models/Inventory');
 const Medicine = require('../models/Medicine');
+const Notification = require('../models/Notification');
 
+// Helper function to create notifications
+const createNotification = async (userId, message, relatedType, relatedId) => {
+    try {
+        const user = await User.findOne({ role: userId }); // Assuming 'admin' is a role
+        if (!user) throw new Error(`User with role '${userId}' not found`);
+
+        await Notification.create({
+            userId: user._id,
+            message,
+            relatedType,
+            relatedId
+        });
+    } catch (err) {
+        console.error('Error creating notification:', err.message);
+    }
+};
+
+// Add Sales Record
 const addSales = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -17,7 +37,7 @@ const addSales = async (req, res) => {
         let salesRecords = [];
 
         for (const sale of sales) {
-            const { medicineId, inventoryId, quantitySold } = sale;
+            const { medicineId, inventoryId, quantitySold, userId } = sale;
 
             const medicine = await Medicine.findById(medicineId).populate('category', 'name');
             if (!medicine) {
@@ -54,11 +74,16 @@ const addSales = async (req, res) => {
                 quantitySold,
                 totalPrice,
                 saleDate: new Date(),
-                status: 'sold'
+                status: 'sold',
+                userId: userId // Store the user who made the sale
             });
 
             await newSale.save({ session });
             salesRecords.push(newSale);
+
+            const notificationMessage = `Sale of ${medicine.name} has been successfully recorded. Total price: ${totalPrice}.`;
+            await createNotification('admin', notificationMessage, 'sale', newSale._id);
+
         }
 
         await session.commitTransaction();
@@ -73,18 +98,18 @@ const addSales = async (req, res) => {
     }
 };
 
-
+// Get All Sales
 const getAllSales = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1; // Default to page 1
-        const limit = 5
+        const limit = 5;
         const skip = limit ? (page - 1) * limit : 0; // Calculate skip value
 
         let salesQuery = Sales.find()
             .populate({
                 path: 'medicine',
                 select: 'name category',
-                populate: { path: 'category', select: 'name' } 
+                populate: { path: 'category', select: 'name' }
             })
             .populate('inventoryId', 'expiryDate quantity');
 
@@ -109,13 +134,12 @@ const getAllSales = async (req, res) => {
             totalSales,
             sales
         });
-
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
-
+// Get Sale by ID
 const getSaleById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -137,6 +161,7 @@ const getSaleById = async (req, res) => {
     }
 };
 
+// Cancel Sale
 const cancelSale = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -169,6 +194,9 @@ const cancelSale = async (req, res) => {
 
         sale.status = 'cancelled';
         await sale.save({ session });
+        const notificationMessage = `Sale of ${medicine.name} has been successfully recorded. Total price: ${totalPrice}.`;
+        await createNotification('admin', notificationMessage, 'sale', newSale._id);
+
 
         await session.commitTransaction();
         session.endSession();
