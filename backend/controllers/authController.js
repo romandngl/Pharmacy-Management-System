@@ -59,10 +59,10 @@ const getUserProfile = (req, res) => {
 
 const getAllUsernames = async (req, res) => {
     try {
-        const users = await User.find({}, { name: 1 }).lean();
-        const usernames = users.map(user => user.name);
+        const users = await User.find({ role: 'patient' }, { name: 1, email: 1, role: 1 }).lean();
+        const patients = users.map(user => ({ name: user.name, email: user.email, role: user.role }));
         const count = users.length;
-        res.json({ usernames, count });
+        res.json({ patients, count });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: { message: error.message, stack: error.stack } });
     }

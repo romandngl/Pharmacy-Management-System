@@ -117,7 +117,7 @@ const deleteMedicine = async (req, res) => {
 const editMedicine = async (req, res) => {
     try {
         const { medicineId } = req.params;
-        const { name, reorderLevel, price } = req.body; // ❌ Removed category from request body
+        const { name, reorderLevel, price } = req.body;
 
         const medicine = await Medicine.findById(medicineId);
         if (!medicine) {
