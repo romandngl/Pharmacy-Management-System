@@ -6,7 +6,7 @@ const { addMedicine, getMedicine, deleteMedicine, editMedicine, getMedicineNames
 router.put('/medicine/:medicineId/category', updateMedicineCategory);
 router.put('/medicine/:medicineId', editMedicine);
 router.get('/medicine/:medicineId?', getMedicine);
-// router.delete('/medicine/:medicineId', deleteMedicine);not letting the pharmacist delete medicines
+router.delete('/medicine/:medicineId', deleteMedicine);
 router.post('/medicine/add', addMedicine);
 router.get('/medicines', getMedicineNames);
 
