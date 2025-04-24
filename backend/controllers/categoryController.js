@@ -1,6 +1,19 @@
 const Medicine = require('../models/Medicine');
 const Category = require('../models/Category');
 
+const createNotification = async (userId, message, relatedType, relatedId) => {
+    try {
+        await Notification.create({
+            userId,
+            message,
+            relatedType,
+            relatedId
+        });
+    } catch (err) {
+        console.error('Error creating notification:', err.message);
+    }
+};
+
 // Get All Categories
 const getCategories = async (req, res) => {
     try {
@@ -38,6 +51,13 @@ const addCategory = async (req, res) => {
         const category = new Category({ name, description });
         await category.save();
 
+        await createNotification(
+            userId,
+            `New category "${name}" has been added.`,
+            'category',
+            category._id
+        );
+
         res.status(201).json({ message: 'Category added successfully', category });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -58,6 +78,13 @@ const updateCategory = async (req, res) => {
         category.name = name || category.name;
         category.description = description || category.description;
         await category.save();
+
+        await createNotification(
+            userId,
+            `Category "${category.name}" has been updated.`,
+            'category',
+            category._id
+        );
 
         res.status(200).json({ message: 'Category updated successfully', category });
     } catch (error) {
@@ -91,6 +118,13 @@ const deleteCategory = async (req, res) => {
         );
 
         await category.deleteOne();
+
+        await createNotification(
+            userId,
+            `Category "${category.name}" has been deleted. Affected medicines moved to "${defaultCategory.name}".`,
+            'category',
+            categoryId
+        );
 
         res.status(200).json({ message: 'Category deleted successfully, medicines updated to default category' });
     } catch (error) {
