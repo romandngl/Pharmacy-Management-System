@@ -3,6 +3,19 @@ const Appointment = require('../models/Appointment');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 
+const createNotification = async (userId, message, relatedType = 'appointment', relatedId = null) => {
+    try {
+        await Notification.create({
+            user: userId,
+            message,
+            relatedType,
+            relatedId
+        });
+    } catch (err) {
+        console.error('Error creating notification:', err.message);
+    }
+};
+
 const createAppointment = async (req, res) => {
     try {
         const { patient, date, time } = req.body;
@@ -20,6 +33,13 @@ const createAppointment = async (req, res) => {
 
         const newAppointment = new Appointment({ patient, date, time });
         await newAppointment.save();
+
+        await createNotification(
+            patient,
+            `Your appointment has been scheduled for ${date} at ${time}.`,
+            'appointment',
+            newAppointment._id
+        );
 
         await Notification.create({
             user: patient,
@@ -78,6 +98,13 @@ const cancelAppointment = async (req, res) => {
             user: appointment.patient,
             message: `Your appointment scheduled for ${appointment.date} at ${appointment.time} has been canceled.`
         });
+
+        await createNotification(
+            appointment.patient,
+            `Your appointment scheduled for ${appointment.date} at ${appointment.time} has been canceled.`,
+            'appointment',
+            appointment._id
+        );
 
         res.status(200).json(appointment);
     } catch (error) {
