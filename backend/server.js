@@ -14,6 +14,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const salesRoutes = require('./routes/salesRoutes');
 const appointmentsRoutes = require('./routes/appointmentRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const newsletterRoutes = require('./routes/newsletterRoutes');
 
 const app = express();
 app.use(express.json());
@@ -29,7 +30,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/appointments', appointmentsRoutes);
 app.use('/api/notifications', notificationRoutes);
-
+app.use('/api/newsletter', newsletterRoutes);
 
 
 const PORT = process.env.PORT || 3000;
