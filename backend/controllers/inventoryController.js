@@ -166,9 +166,8 @@ const updateMedicineCategory = async (req, res) => {
 // Get all medicine names
 const getMedicineNames = async (req, res) => {
     try {
-        const medicineNames = await Medicine.distinct('name');
-        const medicineCount = await Medicine.countDocuments({ isDeleted: false });
-        res.json({ message: 'All medicine names', medicineNames, medicineCount });
+        const medicines = await Medicine.find({ isDeleted: false });
+        res.json({ message: 'All medicines', medicines });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }

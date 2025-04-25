@@ -52,7 +52,7 @@ const addCategory = async (req, res) => {
         await category.save();
 
         await createNotification(
-            userId,
+            'admin',
             `New category "${name}" has been added.`,
             'category',
             category._id
@@ -80,7 +80,7 @@ const updateCategory = async (req, res) => {
         await category.save();
 
         await createNotification(
-            userId,
+            'admin',
             `Category "${category.name}" has been updated.`,
             'category',
             category._id
@@ -120,7 +120,7 @@ const deleteCategory = async (req, res) => {
         await category.deleteOne();
 
         await createNotification(
-            userId,
+            'admin',
             `Category "${category.name}" has been deleted. Affected medicines moved to "${defaultCategory.name}".`,
             'category',
             categoryId
