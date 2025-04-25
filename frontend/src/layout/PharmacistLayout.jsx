@@ -1,184 +1,133 @@
-import React, { useEffect, useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
-import axios from 'axios';
+import React, { useEffect, useState } from 'react'
+import { Link, Outlet } from 'react-router-dom'
+import Logout from '../../utils/Logout'
+import { Bell, DollarSign, Gauge, ListCollapse, Pill, ShoppingBasket } from 'lucide-react';
 import Cookies from 'js-cookie';
-import API_URL from '../../configuration/Api';
 import { fetchUser } from '../../configuration/ProtectedRoute';
-import { toast } from 'react-toastify';
-import {
-    Bell,
-    DollarSign,
-    Gauge,
-    ListCollapse,
-    NotepadText,
-    Pill,
-    ShoppingBasket,
-    LogOut,
-    X,
-} from 'lucide-react';
-import Toast from '../../components/toast/Toast';
-
+import API_URL from '../../configuration/Api';
+import axios from 'axios';
 export const PharmacistLayout = () => {
+
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [notification, setNotification] = useState([]);
-    const [showPopup, setShowPopup] = useState(false);
     const token = Cookies.get('token');
+    const [notification, setNotification] = useState([]);
+    const [showPopup, setShowPopup] = useState(false); // popup state
 
     useEffect(() => {
         const checkUser = async () => {
             if (token) {
-                try {
-                    const userData = await fetchUser(token);
-                    setUser(userData);
-                    const res = await axios.get(`${API_URL}/notifications/${userData?.user?.userId}`);
-                    setNotification(res.data.notifications || []);
-                } catch (err) {
-                    toast.error('Failed to fetch user data or notifications.');
-                }
+                const userData = await fetchUser(token);
+                setUser(userData);
+                const getNotification = await axios.get(API_URL + `/notifications/${userData?.user?.userId}`)
+                const getData = getNotification.data;
+                setNotification(getData)
             }
             setLoading(false);
         };
         checkUser();
     }, [token]);
 
-    const handleLogout = () => {
-        Cookies.remove('token');
-        window.location.href = '/'; // Adjust to your login route
-    };
+
+    console.log(user)
+    console.log(notification)
 
     return (
-        <div className="flex min-h-screen bg-gray-100">
-            <Toast />
-
-            {/* Sidebar */}
-            <aside className="fixed top-0 left-0 w-64 h-screen bg-white shadow-xl border-r border-gray-200">
-                <div className="flex flex-col h-full p-4">
-                    <div className="flex items-center gap-2 mb-6 p-2">
-                        <Pill className="text-blue-600" size={28} />
-                        <h1 className="text-xl font-bold text-gray-800">Pharmacist Panel</h1>
-                    </div>
-
-                    <nav className="flex-1">
-                        <ul className="space-y-1">
-                            <li>
-                                <button
-                                    onClick={() => setShowPopup(true)}
-                                    className="flex items-center w-full p-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
-                                >
-                                    <Bell size={20} />
-                                    <span className="ml-3">Notifications</span>
-                                    {notification.length > 0 && (
-                                        <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1">
-                                            {notification.length}
-                                        </span>
-                                    )}
-                                </button>
-                            </li>
-                            <li>
-                                <Link
-                                    to="/pharmacist/dashboard"
-                                    className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
-                                >
-                                    <Gauge size={20} />
-                                    <span className="ml-3">Dashboard</span>
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    to="/pharmacist/medicine"
-                                    className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
-                                >
-                                    <Pill size={20} />
-                                    <span className="ml-3">Medicine</span>
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    to="/pharmacist/inventory"
-                                    className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
-                                >
-                                    <ShoppingBasket size={20} />
-                                    <span className="ml-3">Inventory</span>
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    to="/pharmacist/category"
-                                    className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
-                                >
-                                    <ListCollapse size={20} />
-                                    <span className="ml-3">Category</span>
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    to="/pharmacist/appointments"
-                                    className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
-                                >
-                                    <NotepadText size={20} />
-                                    <span className="ml-3">Appointments</span>
-                                </Link>
-                            </li>
-                        </ul>
-                    </nav>
-
-                    {/* Logout Button */}
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors duration-200"
-                    >
-                        <LogOut size={20} />
-                        <span className="ml-3">Log Out</span>
-                    </button>
-                </div>
-            </aside>
-
-            {/* Notification Popup */}
+        <div className='w-full min-h-screen flex bg-slate-300'>
             {showPopup && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-bold text-gray-800">Notifications</h2>
-                            <button
-                                onClick={() => setShowPopup(false)}
-                                className="p-2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
-                            >
-                                <X size={20} />
-                            </button>
-                        </div>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
+                    <div className="bg-white h-[500px] overflow-y-auto  p-6 rounded-xl shadow-xl w-11/12 max-w-2xl relative">
+                        <button className="absolute top-4 right-4 text-gray-500 hover:text-black" onClick={() => setShowPopup(false)}>
+                            ✖
+                        </button>
+                        <h2 className="text-xl font-bold mb-4">Notifications</h2>
                         {notification.length === 0 ? (
-                            <div className="text-center text-gray-500 py-4">
-                                <Bell size={24} className="mx-auto mb-2 text-gray-400" />
-                                <p>No notifications found.</p>
-                            </div>
+                            <p>No notifications found.</p>
                         ) : (
-                            <ul className="space-y-3">
-                                {notification.map((item) => (
-                                    <li
-                                        key={item.id}
-                                        className="p-3 bg-gray-50 rounded-lg border border-gray-200"
-                                    >
-                                        <span className="font-semibold text-gray-800">{item.title}</span>
-                                        <p className="text-gray-600">{item.message}</p>
+                            <ul className="list-disc  overflow-y-auto pl-5">
+                                {notification?.notifications.length !== 0 ? notification?.notifications?.map((item) => (
+                                    <li key={item.id} className="mb-2">
+                                        <span className="font-semibold">{item.title}</span> {item.message}
                                     </li>
-                                ))}
+                                )) : "No notifications found."}
                             </ul>
                         )}
                     </div>
                 </div>
             )}
+            {/* Sidebar */}
+            <aside className="w-64 h-screen fixed top-0 left-0 bg-gray-50 dark:bg-gray-800 shadow-md">
+                <div className="h-full flex flex-col justify-between px-3 py-4 overflow-y-auto">
+                    <ul className="space-y-2 font-medium">
+                        <li className='flex justify-center items-center w-full px-2 py-2 '>
+                            <span onClick={e => setShowPopup(!showPopup)}>
+                                <Bell color='white' />
+                            </span>
+                        </li>
+                        <li>
+                            <Link
+                                to="/pharmacist/dashboard"
+                                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                            >
+                                <Gauge />
+                                <span className="ms-3">Dashboard</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                to="/pharmacist/medicine"
+                                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                            >
+                                <Pill />
+                                <span className="ms-3">Medicine</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                to="/pharmacist/inventory"
+                                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                            >
+                                <ShoppingBasket />
+                                <span className="ms-3">Inventory</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                to="/pharmacist/category"
+                                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                            >
+                                <ListCollapse />
+                                <span className="ms-3">Category</span>
+                            </Link>
+                        </li>
+                        {/* <li>
+                            <Link
+                                to="/pharmacist/sales"
+                                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                            >
+                                <DollarSign />
+                                <span className="ms-3">Sales</span>
+                            </Link>
+                        </li> */}
+
+                    </ul>
+
+                    {/* Logout Button */}
+                    <div className="w-full py-4">
+                        <button
+                            onClick={Logout}
+                            className="w-full flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                        >
+                            <span className="flex-1 ms-3 whitespace-nowrap">Log Out</span>
+                        </button>
+                    </div>
+                </div>
+            </aside>
 
             {/* Main Content */}
-            <main className="ml-64 w-full p-6">
-                {loading ? (
-                    <div className="flex justify-center items-center h-64">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-500"></div>
-                    </div>
-                ) : (
-                    <Outlet />
-                )}
-            </main>
+            <div className="ml-64 w-full min-h-screen p-6 ">
+                <Outlet />
+            </div>
         </div>
-    );
-};
+    )
+}
