@@ -24,7 +24,7 @@ const getMedicine = async (req, res) => {
     try {
         const { medicineId } = req.params;
         const page = parseInt(req.query.page) || 1; // Default to page 1
-        const limit = 5
+        const limit = 10
         const skip = limit ? (page - 1) * limit : 0; // Skip calculation
 
         if (medicineId) {
@@ -274,7 +274,9 @@ const reorderMedicine = async (req, res) => {
 // Generate Stock Report
 const generateStockReport = async (req, res) => {
     try {
-        const { status: statusFilter } = req.params; // Get status from URL params
+        const { status: statusFilter } = req.params;
+        const { page, limit = 10 } = req.query;
+
         const inventory = await Inventory.find()
             .populate({
                 path: 'medicine',
@@ -285,52 +287,70 @@ const generateStockReport = async (req, res) => {
             return res.status(404).json({ message: 'No inventory records found' });
         }
 
-        // Calculate the status based on expiry date
         const currentDate = new Date();
 
         const updatedInventory = inventory.map(item => {
             const expiryDate = new Date(item.expiryDate);
-            const timeDiff = expiryDate - currentDate; // Time difference in milliseconds
-            const daysRemaining = Math.floor(timeDiff / (1000 * 3600 * 24)); // Convert time difference to days
+            const timeDiff = expiryDate - currentDate;
+            const daysRemaining = Math.floor(timeDiff / (1000 * 3600 * 24));
 
-            let status = "low-priority"; // Default status
+            let status = "low-priority";
 
             if (daysRemaining < 0) {
-                status = "expired"; // If expired
+                status = "expired";
             } else if (daysRemaining <= 90) {
-                status = "high-priority"; // If expiry date within 3 months
+                status = "high-priority";
             } else if (daysRemaining <= 180) {
-                status = "med-priority"; // If expiry date within 6 months
+                status = "med-priority";
             }
 
-            // Add status to the inventory item
             return {
-                ...item.toObject(), // Convert Mongoose document to plain object
+                ...item.toObject(),
                 status
             };
         });
 
-        // If a status filter is provided, filter inventory by status
         let filteredInventory = updatedInventory;
         if (statusFilter) {
             filteredInventory = updatedInventory.filter(item => item.status === statusFilter);
         }
 
-        // If no records match the filter
         if (filteredInventory.length === 0) {
             return res.status(404).json({ message: `No inventory records found with status: ${statusFilter}` });
         }
 
-        res.json({ message: 'Stock Report Generated', inventory: filteredInventory });
+        if (page) {
+            const pageNumber = parseInt(page);
+            const startIndex = (pageNumber - 1) * limit;
+            const endIndex = startIndex + parseInt(limit);
+            const paginatedInventory = filteredInventory.slice(startIndex, endIndex);
+
+            return res.json({
+                message: 'Stock Report Generated',
+                totalRecords: filteredInventory.length,
+                page: pageNumber,
+                totalPages: Math.ceil(filteredInventory.length / limit),
+                inventory: paginatedInventory
+            });
+        } else {
+            // If no page is specified, return all data
+            return res.json({
+                message: 'Stock Report Generated',
+                totalRecords: filteredInventory.length,
+                inventory: filteredInventory
+            });
+        }
+
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
+
 const generateDetailedStockReport = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1; // Default to page 1
-        const limit = 2
+        const limit = 10
         const skip = limit ? (page - 1) * limit : 0; // Calculate skip value
 
         // Aggregate inventory data

@@ -24,6 +24,28 @@ const getCategories = async (req, res) => {
     }
 };
 
+const getPaginatedCategories = async (req, res) => {
+    try {
+        const { page = 1, limit = 10 } = req.query;
+
+        const totalCategories = await Category.countDocuments();
+        const categories = await Category.find()
+            .skip((page - 1) * limit)
+            .limit(parseInt(limit));
+
+        res.status(200).json({
+            message: 'Categories retrieved successfully',
+            totalRecords: totalCategories,
+            page: parseInt(page),
+            totalPages: Math.ceil(totalCategories / limit),
+            categories
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+
 // Get Single Category
 const getCategoryById = async (req, res) => {
     try {
@@ -137,5 +159,6 @@ module.exports = {
     getCategoryById,
     addCategory,
     updateCategory,
-    deleteCategory
+    deleteCategory,
+    getPaginatedCategories 
 };

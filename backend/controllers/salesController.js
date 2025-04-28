@@ -99,10 +99,10 @@ const addSales = async (req, res) => {
 };
 
 // Get All Sales
-const getAllSales = async (req, res) => {
+const paginatedSales = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1; // Default to page 1
-        const limit = 5;
+        const limit = 10;
         const skip = limit ? (page - 1) * limit : 0; // Calculate skip value
 
         let salesQuery = Sales.find()
@@ -132,6 +132,30 @@ const getAllSales = async (req, res) => {
             currentPage: page,
             totalPages,
             totalSales,
+            sales
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+const getAllSales = async (req, res) => {
+    try {
+        const sales = await Sales.find()
+            .populate({
+                path: 'medicine',
+                select: 'name category',
+                populate: { path: 'category', select: 'name' }
+            })
+            .populate('inventoryId', 'expiryDate quantity');
+
+        if (sales.length === 0) {
+            return res.status(404).json({ message: "No sales records found" });
+        }
+
+        res.status(200).json({
+            message: "All sales retrieved successfully",
+            totalSales: sales.length,
             sales
         });
     } catch (error) {
@@ -212,7 +236,8 @@ const cancelSale = async (req, res) => {
 
 module.exports = {
     addSales,
-    getAllSales,
+    paginatedSales,
     getSaleById,
-    cancelSale
+    cancelSale,
+    getAllSales
 };
