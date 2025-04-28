@@ -153,15 +153,19 @@ const getAllSales = async (req, res) => {
             return res.status(404).json({ message: "No sales records found" });
         }
 
+        const totalRevenue = sales.reduce((sum, sale) => sum + sale.totalPrice, 0);
+
         res.status(200).json({
             message: "All sales retrieved successfully",
             totalSales: sales.length,
+            totalRevenue,
             sales
         });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
 
 // Get Sale by ID
 const getSaleById = async (req, res) => {
