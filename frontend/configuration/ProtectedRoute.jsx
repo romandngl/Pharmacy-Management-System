@@ -43,7 +43,6 @@ export const ProtectedRoute = ({ children, isPublic = false, isProtected = false
         };
 
         const userRole = user?.user?.role;
-        console.log("User ROle", userRole);
         if (userRole) {
             return <Navigate to={roleRedirects[userRole] || "/"} />;
         }

@@ -10,26 +10,53 @@ import Toast from '../../../../components/toast/Toast';
 
 export const AdminInventory = () => {
     const navigate = useNavigate();
+    const [defaultPagination, setDefaultPagination] = useState(1);
+    const [totalPage, setTotalPage] = useState(0)
+    const [totalInventory, setTotalInventory] = useState(0)
+    console.log("Total inventory", totalInventory)
     const [inventory, setInventory] = useState([]);
     const [reset, setReset] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({ medicineId: '', quantity: '', medicineName: '', inventoryId: '' });
+
     useEffect(() => {
-        const fetchInventory = async () => {
-            try {
-                const response = await axios.get(`${API_URL}/inventory/report`);
-                setInventory(response.data.inventory);
-            } catch (err) {
-                setError('Failed to fetch inventory data.');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchInventory();
+        fetchInventory(defaultPagination)
+            .then((res) => {
+                console.log(res)
+                setInventory(res.inventory);
+                setTotalPage(res.totalPages);
+                setTotalInventory(res.totalRecords)
+            }).catch((err) => console.log(err))
     }, [reset]);
 
+    function getNextInventory() {
+        setDefaultPagination(defaultPagination + 1);
+        fetchInventory(defaultPagination + 1).then(data => setInventory(data?.inventory)).catch((error) => console.log(error))
+    }
+
+    function getPrevInventory() {
+        if (defaultPagination > 1) {
+            setDefaultPagination(defaultPagination - 1);
+            fetchInventory(defaultPagination - 1).then(data => setInventory(data?.inventory)).catch((error) => console.log(error))
+        } else {
+            return
+        }
+        return
+    }
+
+
+    const fetchInventory = async (defaultPagination) => {
+        try {
+            const response = await axios.get(`${API_URL}/inventory/report?page=${defaultPagination}`);
+            return response?.data;
+        } catch (err) {
+            setError('Failed to fetch inventory data.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     const handleEdit = (item) => {
@@ -76,7 +103,7 @@ export const AdminInventory = () => {
                 {/* Cards Section */}
                 <div className="w-full bg-blue-500 flex justify-center items-center gap-6 mb-8 p-6 text-white rounded-lg shadow-sm">
                     <h3 className="text-xl font-semibold">Total Inventory</h3>
-                    <p className="text-xl">{inventory.length}</p>
+                    <p className="text-xl">{totalInventory ?? "N/A"}</p>
                 </div>
 
                 {/* Table Section */}
@@ -101,7 +128,7 @@ export const AdminInventory = () => {
                                     {/* <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">StockLevel</th> */}
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">ReorderLevel</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">CreatedAt</th>
-                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">UpdatedAt</th>
+                                    {/* <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">UpdatedAt</th> */}
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Actions</th>
                                 </tr>
                             </thead>
@@ -117,7 +144,7 @@ export const AdminInventory = () => {
                                             {/* <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.stockLevel ?? "N/A"}</td> */}
                                             <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.reorderLevel ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.medicine.createdAt) ?? "N/A"}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.medicine.updatedAt) ?? "N/A"}</td>
+                                            {/* <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.medicine.updatedAt) ?? "N/A"}</td> */}
                                             <td className=" px-6 py-3 text-sm text-gray-700">
                                                 <button onClick={e => handleEdit(item)} className="text-blue-500 hover:text-blue-700">
                                                     <Pencil size={20} />
@@ -165,6 +192,20 @@ export const AdminInventory = () => {
                         </div>
                     </div>
                 )}
+
+                <div className="relative w-full py-20 px-4">
+                    <div className="absolute right-20 flex justify-center items-center gap-10 space-x-4">
+
+
+                        <button onClick={e => getPrevInventory()} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200 shadow">
+                            Prev
+                        </button>
+                        {defaultPagination} of {totalPage}
+                        <button onClick={e => (getNextInventory())} disabled={defaultPagination == totalPage ? true : false} className=" px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 shadow">
+                            Next
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );

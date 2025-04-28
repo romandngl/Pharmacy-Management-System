@@ -20,7 +20,6 @@ export const EditMedicine = () => {
         axios.get(API_URL + "/categories")
             .then((res) => {
                 setCategories(res.data.categories)
-                console.log(res.data.categories)
             }).catch((error) => console.log("Error when fetching categories", error))
     }, [])
 
@@ -37,7 +36,6 @@ export const EditMedicine = () => {
             try {
                 const res = await axios.get(`${API_URL}/medicine/${id}`);
                 setData(res?.data.medicine);
-                console.log(res?.data.medicine)
                 setCurrentCategory(res?.data.medicine.category.name)
             } catch (error) {
                 console.log(error);
@@ -65,7 +63,6 @@ export const EditMedicine = () => {
             "categoryId": value
         })
             .then((res) => {
-                console.log(res)
                 toast.success("Updated category for medicine")
             }).catch((err) => console.log(err))
     }

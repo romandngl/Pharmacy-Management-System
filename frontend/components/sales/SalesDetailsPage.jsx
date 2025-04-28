@@ -10,11 +10,9 @@ const SalesDetailsPage = () => {
   const id = param?.id
 
   const [sale, setSale] = useState();
-  console.log("Salte staet data",sale)
   useEffect(() => {
     axios.get(API_URL + "/sales/" + id)
       .then((res) => {
-        console.log(res?.data.sale);
         setSale(res?.data.sale)
       }).catch((err) => console.log(err))
   }, [])

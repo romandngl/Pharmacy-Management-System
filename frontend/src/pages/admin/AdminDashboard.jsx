@@ -5,15 +5,38 @@ import API_URL from '../../../configuration/Api'
 
 export const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
+    const [totalCount, setTotalCount] = useState({
+        users: 0,
+        medicine: 0,
+        sales: 0,
+    });
 
+    
     useEffect(() => {
         async function fetchAllUsers() {
             const res = await axios.get(API_URL + `/auth/users`);
             const data = res.data;
-            console.log(data?.patients)
             setUsers(data?.patients);
+            setTotalCount((prev) => ({ ...prev, users: data?.patients.length }));
         }
+
+        async function fetchAllSales() {
+            const res = await axios.get(API_URL + `/sales`);
+            const data = res.data;
+            console.log(data?.sales?.length)
+            setTotalCount((prev) => ({ ...prev, sales: data.sales.length ?? 0 }));
+        }
+
+        async function fetchAllMedicine() {
+            const res = await axios.get(API_URL + `/medicines`);
+            const data = res.data;
+            console.log("medicines total",data?.medicines?.length)
+            setTotalCount((prev) => ({ ...prev, medicine: data?.medicines?.length ?? 0 }));
+        }
+
         fetchAllUsers();
+        fetchAllSales();
+        fetchAllMedicine();
     }, [])
 
     return (
@@ -23,16 +46,16 @@ export const AdminDashboard = () => {
                 <div className="flex gap-6 mb-8">
                     <div className="flex-1 bg-blue-500 text-white p-6 rounded-lg shadow-lg">
                         <h3 className="text-xl font-semibold">Total Users</h3>
-                        <p className="text-2xl">{users.length ?? 'N/A'}</p> {/* Replace with dynamic data */}
+                        <p className="text-2xl">{totalCount?.users ?? 'N/A'}</p> {/* Replace with dynamic data */}
                     </div>
-                    <div className="flex-1 bg-green-500 text-white p-6 rounded-lg shadow-lg">
+                    <Link to={"/admin/medicine"} className="flex-1 bg-green-500 text-white p-6 rounded-lg shadow-lg">
                         <h3 className="text-xl font-semibold">Total Medicine</h3>
-                        <p className="text-2xl">100</p> {/* Replace with dynamic data */}
-                    </div>
-                    <div className="flex-1 bg-yellow-500 text-white p-6 rounded-lg shadow-lg">
+                        <p className="text-2xl">{totalCount?.medicine ?? "N/A"}</p> {/* Replace with dynamic data */}
+                    </Link>
+                    <Link to={"/admin/sales"} className="flex-1 bg-yellow-500 text-white p-6 rounded-lg shadow-lg">
                         <h3 className="text-xl font-semibold">Total Sales</h3>
-                        <p className="text-2xl">50</p> {/* Replace with dynamic data */}
-                    </div>
+                        <p className="text-2xl">{totalCount?.sales ?? "N/A"}</p> {/* Replace with dynamic data */}
+                    </Link>
                 </div>
 
                 {/* Table Section */}

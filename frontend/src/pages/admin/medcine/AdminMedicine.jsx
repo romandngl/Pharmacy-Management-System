@@ -13,19 +13,25 @@ export const AdminMedicine = () => {
     const navigate = useNavigate();
     const [totalPage, setTotalPage] = useState(0)
 
+    const [totalMedicine, setTotalMedicine] = useState(0)
+
     useEffect(() => {
-        getAllMedicine(defaultPagination).then(data => setMedicine(data)).catch((error) => console.log(error))
+        getAllMedicine(defaultPagination).then(data => {
+            setMedicine(data.medicines)
+            setTotalMedicine(data.totalRecords)
+            setTotalPage(data.totalPages)
+        }).catch((error) => console.log(error))
     }, [])
 
     function getNextMedicine() {
         setDefaultPagination(defaultPagination + 1);
-        getAllMedicine(defaultPagination + 1).then(data => setMedicine(data)).catch((error) => console.log(error))
+        getAllMedicine(defaultPagination + 1).then(data => setMedicine(data?.medicines)).catch((error) => console.log(error))
     }
 
     function getPrevMedicine() {
         if (defaultPagination > 1) {
             setDefaultPagination(defaultPagination - 1);
-            getAllMedicine(defaultPagination - 1).then(data => setMedicine(data)).catch((error) => console.log(error))
+            getAllMedicine(defaultPagination - 1).then(data => setMedicine(data?.medicines)).catch((error) => console.log(error))
         } else {
             return
         }
@@ -34,11 +40,9 @@ export const AdminMedicine = () => {
 
     async function getAllMedicine(defaultPagination) {
         try {
-            console.log(defaultPagination)
             const res = await axios.get(API_URL + `/medicine?page=${defaultPagination}`);
-            const data = res.data.medicines;
-            setTotalPage(res.data.totalPages)
-            return data;
+            const data = res.data;
+            return data
         } catch (error) {
             console.log(error)
         }
@@ -78,7 +82,7 @@ export const AdminMedicine = () => {
                 <div className="w-full bg-blue-500 flex justify-center items-center gap-6 mb-8">
                     <div className="flex   gap-5 items-center  text-white p-6 rounded-lg shadow-sm">
                         <h3 className="text-xl font-semibold">Total Medicine</h3>
-                        <p className="text-xl">{medicine?.length ?? 'N/A'}</p> {/* Replace with dynamic data */}
+                        <p className="text-xl">{totalMedicine ?? 'N/A'}</p> {/* Replace with dynamic data */}
                     </div>
                 </div>
 
@@ -101,7 +105,7 @@ export const AdminMedicine = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {medicine.length > 0 ? (
+                                {medicine?.length > 0 ? (
                                     medicine.map((medicine, index) => (
                                         <tr key={medicine._id} className="border-b hover:bg-gray-50">
                                             <td className="px-6 py-3 text-sm text-gray-700">{index + 1}</td>

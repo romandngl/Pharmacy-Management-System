@@ -8,7 +8,11 @@ import { toast } from 'react-toastify';
 import Toast from '../toast/Toast';
 
 const ReadCategory = () => {
+    const [defaultPagination, setDefaultPagination] = useState(1);
+    const [totalPage, setTotalPage] = useState(0)
     const [category, setCategory] = useState([]);
+    const [totalCategories, setTotalCategories] = useState(0);
+
     const [role, setRole] = useState('');
     const [editModal, setEditModal] = useState({
         isOpen: false,
@@ -18,9 +22,45 @@ const ReadCategory = () => {
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
-        getAllCategories();
+        getAllCategories(defaultPagination)
+            .then((res) => {
+                console.log("Category", res)
+                setCategory(res.categories);
+                setTotalPage(res.totalPages);
+                setTotalCategories(res.totalRecords);
+            })
+            .catch((err) => {
+                console.error('Error fetching categories:', err);
+            })
         fetchRole();
     }, []);
+
+    function getNextCategory() {
+        setDefaultPagination(defaultPagination + 1);
+        getAllCategories(defaultPagination + 1).then(data => setCategory(data?.categories)).catch((error) => console.log(error))
+    }
+
+    function getPrevCategory() {
+        if (defaultPagination > 1) {
+            setDefaultPagination(defaultPagination - 1);
+            getAllCategories(defaultPagination - 1).then(data => setCategory(data?.categories)).catch((error) => console.log(error))
+        } else {
+            return
+        }
+        return
+    }
+
+
+
+    const getAllCategories = async (defaultPagination) => {
+        try {
+            const res = await axios.get(`${API_URL}/categories/paginated?page=${defaultPagination}`);
+            const data = res.data;
+            return data;
+        } catch (err) {
+            console.error('Error fetching categories:', err);
+        }
+    };
 
     const fetchRole = async () => {
         const token = Cookies.get('token');
@@ -38,14 +78,7 @@ const ReadCategory = () => {
         }
     };
 
-    const getAllCategories = async () => {
-        try {
-            const res = await axios.get(`${API_URL}/categories`);
-            setCategory(res.data.categories);
-        } catch (err) {
-            console.error('Error fetching categories:', err);
-        }
-    };
+
 
     const handleDelete = useCallback((id) => {
         if (!id) {
@@ -103,7 +136,7 @@ const ReadCategory = () => {
                 editModal.formData
             );
             toast.success("Category updated successfully");
-            setCategory(prev => prev.map(cat => 
+            setCategory(prev => prev.map(cat =>
                 cat._id === editModal.categoryId ? { ...cat, ...editModal.formData } : cat
             ));
             closeEditModal();
@@ -115,12 +148,12 @@ const ReadCategory = () => {
 
     return (
         <div className='w-full min-h-screen bg-gray-100'>
-            <Toast/>
+            <Toast />
             <div className="p-6">
                 <div className="w-full bg-blue-500 flex justify-center items-center gap-6 mb-8">
                     <div className="flex gap-5 items-center text-white p-6 rounded-lg shadow-sm">
                         <h3 className="text-xl font-semibold">Total Categories</h3>
-                        <p className="text-xl">{category.length ?? 'N/A'}</p>
+                        <p className="text-xl">{totalCategories ?? 'N/A'}</p>
                     </div>
                 </div>
 
@@ -149,8 +182,8 @@ const ReadCategory = () => {
                                             <td className="px-6 py-3 text-sm text-gray-700">{cat.name ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{cat.description ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700 space-x-4">
-                                                <button onClick={() => openEditModal(cat)} className="text-blue-600 hover:underline"><Pencil size={20}/></button>
-                                                <button onClick={() => handleDelete(cat?._id)} className="text-red-600 hover:underline"><Trash2 size={20}/></button>
+                                                <button onClick={() => openEditModal(cat)} className="text-blue-600 hover:underline"><Pencil size={20} /></button>
+                                                <button onClick={() => handleDelete(cat?._id)} className="text-red-600 hover:underline"><Trash2 size={20} /></button>
                                             </td>
                                         </tr>
                                     ))
@@ -215,6 +248,19 @@ const ReadCategory = () => {
                     </div>
                 </div>
             )}
+            <div className="relative w-full py-20 px-4">
+                <div className="absolute right-20 flex justify-center items-center gap-10 space-x-4">
+
+
+                    <button onClick={e => getPrevCategory()} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200 shadow">
+                        Prev
+                    </button>
+                    {defaultPagination} of {totalPage}
+                    <button onClick={e => (getNextCategory())} disabled={defaultPagination == totalPage ? true : false} className=" px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 shadow">
+                        Next
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };

@@ -29,8 +29,6 @@ export const AdminLayout = () => {
     }, [token]);
 
 
-    console.log(user)
-    console.log(notification)
 
     return (
         <div className='w-full min-h-screen flex bg-slate-300'>

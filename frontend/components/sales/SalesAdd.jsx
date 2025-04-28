@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import API_URL from '../../configuration/Api';
 import { toast } from 'react-toastify';
+import Toast from '../toast/Toast';
 
 export const SalesAdd = () => {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ export const SalesAdd = () => {
   
   const [medicines, setMedicines] = useState([]);
   const [inventories, setInventories] = useState([]);
-  
+  console.log(inventories)
   useEffect(() => {
     axios.get(`${API_URL}/medicines`)
       .then((res) => setMedicines(res.data.medicines || []))
@@ -56,15 +57,18 @@ export const SalesAdd = () => {
       const res = await axios.post(`${API_URL}/sales/add`, { sales: formattedSales });
       toast.success(res.data.message);
       setSales([{ medicineId: '', inventoryId: '', quantitySold: '' }]);
-      navigate("/admin/sales");
+      setTimeout(()=>{
+        navigate("/admin/sales");
+      },3000)
     } catch (error) {
       console.error('Error submitting sales:', error);
-      toast.error(error?.response?.data?.error || 'An error occurred');
+      toast.error(error?.response?.data?.message || 'An error occurred');
     }
   };
 
   return (
     <div className="container min-h-screen w-auto bg-slate-100 rounded-xl p-6 flex flex-col items-center">
+      <Toast/>
       <div className="mt-6 w-full max-w-md p-6 shadow-lg border rounded-lg bg-white">
         <h1 className="text-3xl font-bold text-gray-800">Add Sale</h1>
         <p className="text-gray-600 mt-2 mb-6">Fill out the form to record new sales.</p>
@@ -83,7 +87,7 @@ export const SalesAdd = () => {
                 <option disabled value="">Select Inventory</option>
                 {inventories.filter(inventory => inventory.medicine._id === sale.medicineId).map((inventory) => (
                   <option key={inventory._id} value={inventory._id}>
-                    {inventory._id} (Qty: {inventory.quantity})
+                   <p className='font-bol'>Expiry Date</p>: {new Date(inventory.expiryDate).toISOString().split('T')[0]} (Qty: {inventory.quantity})
                   </option>
                 ))}
               </select>
@@ -96,9 +100,6 @@ export const SalesAdd = () => {
             </div>
           ))}
 
-          <button type="button" onClick={addSaleForm} className="mt-2 bg-green-600 text-white px-4 py-2 rounded w-full hover:bg-green-700 transition-colors duration-300">
-            + Add Another Sale
-          </button>
 
           <button type="submit" className="mt-4 bg-blue-600 text-white px-6 py-2 rounded w-full hover:bg-blue-700 transition-colors duration-300">
             Submit Sales
