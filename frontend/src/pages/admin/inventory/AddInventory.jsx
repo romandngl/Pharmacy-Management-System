@@ -69,9 +69,6 @@ export const AddInventory = () => {
             });
             toast.success(res.data.message);
             setData({ medicineId: '', quantity: '', expiryDate: '' });
-            setTimeout(() => {
-                navigate('/admin/inventory');
-            }, 1500);
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to add inventory');
         } finally {

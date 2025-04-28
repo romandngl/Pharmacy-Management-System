@@ -4,27 +4,59 @@ import API_URL from '../../../../configuration/Api';
 import { toast } from 'react-toastify';
 import Toast from '../../../../components/toast/Toast';
 import { Calendar, AlertCircle } from 'lucide-react';
+import Cookies from 'js-cookie';
+
+const fetchUser = async (token) => {
+    try {
+        const res = await axios.get(`${API_URL}/auth/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data;
+    } catch (error) {
+        toast.error('Failed to fetch user data.');
+        Cookies.remove('token');
+        return null;
+    }
+};
+
+const fetchAppointments = async (userId) => {
+    try {
+        const response = await axios.get(`${API_URL}/appointments/${userId}`);
+        console.log(response.data);
+        return response.data.appointments || [];
+    } catch (err) {
+        // toast.info('No appointments found for this user.');
+    }
+};
 
 export const PatientViewSchedule = () => {
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const token = Cookies.get('token');
 
     useEffect(() => {
-        const fetchAppointments = async () => {
-            try {
-                const response = await axios.get(`${API_URL}/appointments`);
-                setAppointments(response.data.appointments || []);
-            } catch (err) {
-                setError('Failed to fetch appointments.');
-                toast.error('Failed to fetch appointments.');
-            } finally {
-                setLoading(false);
-            }
-        };
+        if (!token) return;
+        setLoading(true);
+        fetchUser(token)
+            .then((res) => {
+                const userId = res?.user?.userId;
+                if (!userId) {
+                    setError("User ID not found.");
+                    setLoading(false);
+                    return;
+                }
+                return fetchAppointments(userId);
+            })
+            .then((appointments) => {
+                if (appointments) setAppointments(appointments);
+            })
+            .catch((err) => {
+                setError("An error occurred while fetching data.");
+            })
+            .finally(() => setLoading(false));
+    }, [token]);
 
-        fetchAppointments();
-    }, []);
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6">
@@ -57,7 +89,7 @@ export const PatientViewSchedule = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
-                                    {appointments.length > 0 ? (
+                                    {appointments && appointments?.length > 0 ? (
                                         appointments.map((appt) => (
                                             <tr
                                                 key={appt._id}

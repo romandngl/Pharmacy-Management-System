@@ -62,9 +62,7 @@ export const SalesAdd = () => {
       const res = await axios.post(`${API_URL}/sales/add`, { sales: [formattedSale] });
       toast.success(res.data.message);
       setSale({ medicineId: '', inventoryId: '', quantitySold: '' });
-      setTimeout(() => {
-        navigate('/admin/sales');
-      }, 1500);
+
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Failed to add sale.');
     } finally {

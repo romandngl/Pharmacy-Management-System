@@ -120,6 +120,15 @@ export const PharmacistLayout = () => {
                                     <span className="ml-3">Appointments</span>
                                 </Link>
                             </li>
+                            <li>
+                                <Link
+                                    to="/pharmacist/sales"
+                                    className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                                >
+                                    <DollarSign  size={20} />
+                                    <span className="ml-3">Sales</span>
+                                </Link>
+                            </li>
                         </ul>
                     </nav>
 

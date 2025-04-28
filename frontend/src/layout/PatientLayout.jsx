@@ -4,7 +4,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import API_URL from '../../configuration/Api';
 import { toast } from 'react-toastify';
-import { Bell, Calendar, LogOut, X } from 'lucide-react';
+import { Bell, Calendar, CalendarPlus2, LogOut, X } from 'lucide-react';
 import Toast from '../../components/toast/Toast';
 
 export const fetchUser = async (token) => {
@@ -84,11 +84,11 @@ export const PatientLayout = () => {
                                     to="/patient/schedule/add"
                                     className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
                                 >
-                                    <Calendar size={20} />
+                                    <CalendarPlus2  size={20} />
                                     <span className="ml-3">Add Schedule</span>
                                 </Link>
                             </li>
-                            {/* <li>
+                            <li>
                                 <Link
                                     to="/patient/schedule/view"
                                     className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
@@ -96,7 +96,7 @@ export const PatientLayout = () => {
                                     <Calendar size={20} />
                                     <span className="ml-3">View Schedule</span>
                                 </Link>
-                            </li> */}
+                            </li>
                         </ul>
                     </nav>
 

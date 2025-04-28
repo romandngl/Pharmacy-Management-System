@@ -93,9 +93,6 @@ export const EditMedicine = () => {
                 price: Number(price),
             });
             toast.success(res.data.message);
-            setTimeout(() => {
-                navigate('/admin/medicine');
-            }, 1500);
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to update medicine');
         } finally {

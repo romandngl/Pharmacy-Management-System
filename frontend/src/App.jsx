@@ -25,7 +25,6 @@ import PharmacistMedicine from './pages/pharmacist/medicine/PharmacistMedicine';
 import PharmacistInventory from './pages/pharmacist/inventory/PharmacistInventory';
 import AdminReadCategory from './pages/admin/category/AdminReadCategory';
 import PharmacistReadCategory from './pages/pharmacist/category/PharmacistReadCategory';
-import AddCategory from '../components/category/AddCategory';
 import AdminAddCategory from './pages/admin/category/AdminAddCategory';
 import PharmacistAddCategory from './pages/pharmacist/category/PharmacistAddCategory';
 import AdminSales from './pages/admin/sales/AdminSales';
@@ -34,6 +33,8 @@ import AdminSalesAdd from './pages/admin/sales/AdminSalesAdd';
 import { PatientViewSchedule } from './pages/patent/schedule/PatientViewSchedule';
 import ViewAppointments from './pages/pharmacist/appointment/ViewAppointments';
 import { ViewAppointmentById } from './pages/pharmacist/appointment/ViewAppointmentById';
+import PharmacistSale from './pages/pharmacist/sale/PharmacistSale';
+import { PharmacistSaleAdd } from './pages/pharmacist/sale/PharmacistSaleAdd';
 function App() {
   const router = createBrowserRouter([
     {
@@ -152,6 +153,12 @@ function App() {
         },
         {
           path: "/pharmacist/appointments/view/:id", element: <ViewAppointmentById />
+        },
+        {
+          path: "/pharmacist/sales", element: <PharmacistSale />
+        },
+        {
+          path: "/pharmacist/sales/add", element: <PharmacistSaleAdd />
         }
       ]
     }

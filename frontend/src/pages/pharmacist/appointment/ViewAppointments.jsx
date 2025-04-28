@@ -6,26 +6,45 @@ import Toast from '../../../../components/toast/Toast';
 import { CircleCheck, CircleX, Calendar, Clock, User, Mail, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+
+const fetchAppointments = async (page=1) => {
+    try {
+        const response = await axios.get(`${API_URL}/appointments?page=${page}`);
+        console.log("Response", response)
+        return response.data
+    } catch (err) {
+        setError('Failed to fetch appointments.');
+    }
+};
+fetchAppointments();
+
+
 const PharmacistAppointments = () => {
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [defaultPagination, setDefaultPagination] = useState(1);
+    const [totalPage, setTotalPage] = useState(0);
 
-    const navigate= useNavigate();
+    const navigate = useNavigate();
+
+    console.log("Appointment ", appointments)
 
     useEffect(() => {
-        const fetchAppointments = async () => {
-            try {
-                const response = await axios.get(`${API_URL}/appointments`);
-                setAppointments(response.data.appointments);
-            } catch (err) {
-                setError('Failed to fetch appointments.');
-            } finally {
+        setLoading(true);
+        fetchAppointments(defaultPagination)
+            .then((data) => {
+                setAppointments(data?.appointments || []);
+                setTotalPage(data?.totalPages || 1);
                 setLoading(false);
-            }
-        };
-        fetchAppointments();
-    }, []);
+            })
+            .catch((err) => {
+                console.log(err);
+                setError('Failed to fetch appointments.');
+                setLoading(false);
+            });
+    }, [defaultPagination]); // <-- add defaultPagination here
+
 
 
     const handleViwe = async (id) => {
@@ -54,7 +73,7 @@ const PharmacistAppointments = () => {
         }
     };
 
-    
+
 
     const getStatusStyles = (status) => {
         switch (status) {
@@ -68,6 +87,19 @@ const PharmacistAppointments = () => {
                 return 'bg-gray-100 text-gray-800';
         }
     };
+
+    function getNextInventory() {
+        if (defaultPagination < totalPage) {
+            setDefaultPagination(prev => prev + 1);
+        }
+    }
+
+    function getPrevInventory() {
+        if (defaultPagination > 1) {
+            setDefaultPagination(prev => prev - 1);
+        }
+    }
+
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6">
@@ -180,6 +212,29 @@ const PharmacistAppointments = () => {
                                     )}
                                 </tbody>
                             </table>
+                        </div>
+                    )}
+                    {totalPage >= 1 && (
+                        <div className="p-6 flex justify-between items-center border-t border-gray-200">
+                            <div className="text-sm text-gray-600">
+                                Page {defaultPagination} of {totalPage}
+                            </div>
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={getPrevInventory}
+                                    disabled={defaultPagination === 1}
+                                    className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    onClick={getNextInventory}
+                                    disabled={defaultPagination === totalPage}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                                >
+                                    Next
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>

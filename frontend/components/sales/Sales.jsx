@@ -5,7 +5,7 @@ import API_URL from '../../configuration/Api';
 import { toast } from 'react-toastify';
 import Toast from '../toast/Toast';
 import { CirclePlus, Eye, Pill } from 'lucide-react';
-
+import Cookies from 'js-cookie';
 const Sales = () => {
     const navigate = useNavigate();
     const [sales, setSales] = useState([]);
@@ -13,7 +13,8 @@ const Sales = () => {
     const [totalPages, setTotalPages] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
+    const [role, setRole] = useState(null);
+    console.log("role",role)
     useEffect(() => {
         const fetchSales = async () => {
             setLoading(true);
@@ -29,7 +30,24 @@ const Sales = () => {
             }
         };
         fetchSales();
+        (async () => {
+            await fetchRole();
+        })()
+
     }, [page]);
+
+    const fetchRole = async () => {
+        const token = Cookies.get('token');
+        if (!token) return;
+        try {
+            const res = await axios.get(`${API_URL}/auth/profile`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setRole(res.data.user.role);
+        } catch (err) {
+            console.error('Error fetching role:', err);
+        }
+    };
 
     const getAllSales = async (page) => {
         try {
@@ -63,7 +81,7 @@ const Sales = () => {
                     <div className="p-6 flex justify-between items-center">
                         <h3 className="text-xl font-bold text-gray-800">Sales List</h3>
                         <button
-                            onClick={() => navigate('/admin/sales/add')}
+                            onClick={() => navigate(`/${role}/sales/add`)}
                             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
                         >
                             <CirclePlus size={20} />
@@ -135,7 +153,7 @@ const Sales = () => {
                             </div>
 
                             {/* Pagination */}
-                            {totalPages > 1 && (
+                            {totalPages >= 1 && (
                                 <div className="p-6 flex justify-between items-center border-t border-gray-200">
                                     <div className="text-sm text-gray-600">
                                         Page {page} of {totalPages}

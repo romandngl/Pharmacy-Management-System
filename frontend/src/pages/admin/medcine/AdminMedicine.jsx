@@ -172,7 +172,7 @@ export const AdminMedicine = () => {
                             </div>
 
                             {/* Pagination */}
-                            {totalPage > 1 && (
+                            {totalPage >= 1 && (
                                 <div className="p-6 flex justify-between items-center border-t border-gray-200">
                                     <div className="text-sm text-gray-600">
                                         Page {defaultPagination} of {totalPage}

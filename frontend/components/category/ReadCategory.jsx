@@ -21,11 +21,15 @@ const ReadCategory = () => {
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(true);
 
+
+    console.log("totalPage", totalPage)
+
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
                 const categoriesData = await getAllCategories(defaultPagination);
+                console.log("Categories Data:", categoriesData);
                 setCategory(categoriesData.categories || []);
                 setTotalPage(categoriesData.totalPages || 0);
                 setTotalCategories(categoriesData.totalRecords || 0);
@@ -235,7 +239,7 @@ const ReadCategory = () => {
                             </div>
 
                             {/* Pagination */}
-                            {totalPage > 1 && (
+                            {totalPage >= 1 && (
                                 <div className="p-6 flex justify-between items-center border-t border-gray-200">
                                     <div className="text-sm text-gray-600">
                                         Page {defaultPagination} of {totalPage}

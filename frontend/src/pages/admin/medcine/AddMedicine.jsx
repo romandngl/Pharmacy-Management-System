@@ -74,9 +74,6 @@ export const AddMedicine = () => {
             });
             toast.success(res.data.message);
             setData({ name: '', category: '', reorderLevel: '', price: '' });
-            setTimeout(() => {
-                navigate('/admin/medicine');
-            }, 1500);
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to add medicine');
         } finally {
