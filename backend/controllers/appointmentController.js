@@ -89,6 +89,19 @@ const getAppointmentById = async (req, res) => {
     }
 };
 
+const getAppointmentsByUserId = async (req, res) => {
+    try {
+        const appointments = await Appointment.find({ patient: req.params.userId }).populate('patient');
+        if (!appointments || appointments.length === 0) {
+            return res.status(404).json({ message: "No appointments found for this user" });
+        }
+        res.status(200).json(appointments);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
 const cancelAppointment = async (req, res) => {
     try {
         const appointment = await Appointment.findByIdAndUpdate(req.params.id, { status: 'canceled' }, { new: true });
@@ -158,6 +171,7 @@ module.exports = {
     createAppointment,
     getAppointments,
     getAppointmentById,
+    getAppointmentsByUserId,
     completeAppointment,
     cancelAppointment,
     getAppointmentsByStatus
