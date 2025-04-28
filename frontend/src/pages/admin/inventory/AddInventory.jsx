@@ -4,45 +4,40 @@ import { Link, useNavigate } from 'react-router-dom';
 import API_URL from '../../../../configuration/Api';
 import { toast } from 'react-toastify';
 import Toast from '../../../../components/toast/Toast';
+import { Pill, ArrowLeft } from 'lucide-react';
 
 export const AddInventory = () => {
     const navigate = useNavigate();
-    const [medicineIds, setMedicineIds] = useState('');
+    const [medicines, setMedicines] = useState([]);
     const [data, setData] = useState({
         medicineId: '',
         quantity: '',
-        expiryDate: ''
+        expiryDate: '',
     });
-
     const [error, setError] = useState({
-        errorMedicineId: "",
-        errorQuantity: "",
-        errorExpiryDate: "",
-        errorServer: ""
+        errorMedicineId: '',
+        errorQuantity: '',
+        errorExpiryDate: '',
+        errorServer: '',
     });
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchMedicines = async () => {
             try {
                 const response = await axios.get(`${API_URL}/medicines`);
-                setMedicineIds(response?.data.medicines);
+                setMedicines(response?.data.medicines || []);
             } catch (err) {
-                setError('Failed to fetch medicines data.');
+                toast.error('Failed to fetch medicines data.');
             }
         };
         fetchMedicines();
-    }, [])
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setData({
-            ...data,
-            [name]: value
-        });
-        setError({
-            ...error,
-            [name === "medicineId" ? "errorMedicineId" : name === "quantity" ? "errorQuantity" : "errorExpiryDate"]: ""
-        });
+        setData({ ...data, [name]: value });
+        setError({ ...error, [name === 'medicineId' ? 'errorMedicineId' : name === 'quantity' ? 'errorQuantity' : 'errorExpiryDate']: '' });
     };
 
     const handleSubmit = async (e) => {
@@ -50,23 +45,15 @@ export const AddInventory = () => {
         const { medicineId, quantity, expiryDate } = data;
 
         let errors = {
-            errorMedicineId: "",
-            errorQuantity: "",
-            errorExpiryDate: "",
-            errorServer: ""
+            errorMedicineId: '',
+            errorQuantity: '',
+            errorExpiryDate: '',
+            errorServer: '',
         };
 
-        if (medicineId === "") {
-            errors.errorMedicineId = "Medicine is required";
-        }
-
-        if (quantity === "") {
-            errors.errorQuantity = "Quantity is required";
-        }
-
-        if (expiryDate === "") {
-            errors.errorExpiryDate = "Expiry date is required";
-        }
+        if (!medicineId) errors.errorMedicineId = 'Medicine is required';
+        if (!quantity) errors.errorQuantity = 'Quantity is required';
+        if (!expiryDate) errors.errorExpiryDate = 'Expiry date is required';
 
         if (errors.errorMedicineId || errors.errorQuantity || errors.errorExpiryDate) {
             setError(errors);
@@ -74,84 +61,112 @@ export const AddInventory = () => {
         }
 
         setError(errors);
+        setLoading(true);
         try {
-            const res = await axios.post(API_URL + '/inventory', data);
-            const res_data = await res.data;
-            toast.success(res_data.message);
-            // navigate("/admin/inventory"); // Redirect to the inventory list page after successful submission
-            setData({
-                medicineId: '',
-                quantity: '',
-                expiryDate: ''
+            const res = await axios.post(`${API_URL}/inventory`, {
+                ...data,
+                quantity: Number(quantity),
             });
+            toast.success(res.data.message);
+            setData({ medicineId: '', quantity: '', expiryDate: '' });
             setTimeout(() => {
-                window.location.reload();
-            }, 2000);
+                navigate('/admin/inventory');
+            }, 1500);
         } catch (error) {
-            console.log(error);
-            toast.error(error.response.data.message);
+            toast.error(error.response?.data?.message || 'Failed to add inventory');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="container min-h-screen w-auto bg-slate-100 rounded-xl p-6 flex flex-col items-center">
+        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6 flex justify-center items-center">
             <Toast />
-            <div className="mt-6 w-full max-w-md p-6 shadow-lg border rounded-lg">
-                <h1 className="text-3xl font-bold">Add Inventory</h1>
-                <p className="text-gray-600 mt-2">Fill out the form to add a new inventory item.</p>
-                <form onSubmit={handleSubmit}>
+            <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-6">
+                <div className="flex items-center gap-2 mb-6">
+                    <Pill className="text-blue-600" size={24} />
+                    <h1 className="text-2xl font-bold text-gray-800">Add Inventory</h1>
+                </div>
+                <p className="text-gray-600 mb-6">Fill out the form to add a new inventory item.</p>
 
+                <form onSubmit={handleSubmit}>
                     {/* Medicine Dropdown */}
-                    <label htmlFor="medicineId" className="block mt-4 font-medium">Medicine</label>
-                    <select
-                        id="medicineId"
-                        name="medicineId"
-                        onChange={handleChange}
-                        className="border p-2 w-full mt-2 rounded-md"
-                        value={data.medicineId}
-                    >
-                        <option value="">Select a medicine</option>
-                        {medicineIds && medicineIds.map((medicine, index) => (
-                            <option key={index} value={medicine._id}>{medicine.name}</option>
-                        ))}
-                    </select>
-                    <span className="text-red-500 text-xs font-bold">{error.errorMedicineId}</span>
+                    <div className="mb-4">
+                        <label htmlFor="medicineId" className="block text-sm font-medium text-gray-600 mb-1">
+                            Medicine
+                        </label>
+                        <select
+                            id="medicineId"
+                            name="medicineId"
+                            onChange={handleChange}
+                            value={data.medicineId}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="">Select a medicine</option>
+                            {medicines.map((medicine) => (
+                                <option key={medicine._id} value={medicine._id}>
+                                    {medicine.name}
+                                </option>
+                            ))}
+                        </select>
+                        {error.errorMedicineId && (
+                            <span className="text-red-500 text-xs mt-1">{error.errorMedicineId}</span>
+                        )}
+                    </div>
 
                     {/* Quantity Input */}
-                    <label htmlFor="quantity" className="block mt-4 font-medium">Quantity</label>
-                    <input
-                        id="quantity"
-                        type="number"
-                        name="quantity"
-                        className="border p-2 w-full mt-2 rounded-md"
-                        onChange={handleChange}
-                        value={data.quantity}
-                        placeholder="Enter quantity"
-                    />
-                    <span className="text-red-500 text-xs font-bold">{error.errorQuantity}</span>
+                    <div className="mb-4">
+                        <label htmlFor="quantity" className="block text-sm font-medium text-gray-600 mb-1">
+                            Quantity
+                        </label>
+                        <input
+                            id="quantity"
+                            type="number"
+                            name="quantity"
+                            onChange={handleChange}
+                            value={data.quantity}
+                            placeholder="Enter quantity"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        {error.errorQuantity && (
+                            <span className="text-red-500 text-xs mt-1">{error.errorQuantity}</span>
+                        )}
+                    </div>
 
                     {/* Expiry Date Input */}
-                    <label htmlFor="expiryDate" className="block mt-4 font-medium">Expiry Date</label>
-                    <input
-                        id="expiryDate"
-                        type="date"
-                        name="expiryDate"
-                        className="border p-2 w-full mt-2 rounded-md"
-                        onChange={handleChange}
-                        value={data.expiryDate}
-                    />
-                    <span className="text-red-500 text-xs font-bold">{error.errorExpiryDate}</span>
+                    <div className="mb-6">
+                        <label htmlFor="expiryDate" className="block text-sm font-medium text-gray-600 mb-1">
+                            Expiry Date
+                        </label>
+                        <input
+                            id="expiryDate"
+                            type="date"
+                            name="expiryDate"
+                            onChange={handleChange}
+                            value={data.expiryDate}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        {error.errorExpiryDate && (
+                            <span className="text-red-500 text-xs mt-1">{error.errorExpiryDate}</span>
+                        )}
+                    </div>
 
-
-                    <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded w-full hover:bg-blue-700">
-                        Add Inventory
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={`w-full py-2 px-6 rounded-lg text-white font-medium transition-colors duration-200 ${loading
+                                ? 'bg-blue-400 cursor-not-allowed'
+                                : 'bg-blue-600 hover:bg-blue-700'
+                            }`}
+                    >
+                        {loading ? 'Adding...' : 'Add Inventory'}
                     </button>
                 </form>
 
-                <div className="w-full flex-col items-center flex justify-center py-4">
-                    <p>Want to go back? <Link to="/admin/inventory"> <span className="text-blue-500">Inventory List</span></Link></p>
-                </div>
+
             </div>
         </div>
     );
 };
+
+export default AddInventory;

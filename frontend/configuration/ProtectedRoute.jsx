@@ -26,13 +26,18 @@ export const ProtectedRoute = ({ children, isPublic = false, isProtected = false
         const checkUser = async () => {
             if (token) {
                 const userData = await fetchUser(token);
+                console.log("Userdata", userData.user);
                 setUser(userData);
             }
             setLoading(false);
         };
-
         checkUser();
     }, [token]);
+
+    useEffect(()=>{
+        localStorage.setItem("user", JSON.stringify(user?.user))
+        Cookies.set("user", JSON.stringify(user?.user));
+    },[user])
 
     // Handle redirection for public routes (user with token should be redirected to the appropriate dashboard)
     if (isPublic && token && user) {
