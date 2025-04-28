@@ -10,7 +10,6 @@ import { useNavigate } from 'react-router-dom';
 const fetchAppointments = async (page=1) => {
     try {
         const response = await axios.get(`${API_URL}/appointments?page=${page}`);
-        console.log("Response", response)
         return response.data
     } catch (err) {
         setError('Failed to fetch appointments.');
@@ -28,7 +27,6 @@ const PharmacistAppointments = () => {
 
     const navigate = useNavigate();
 
-    console.log("Appointment ", appointments)
 
     useEffect(() => {
         setLoading(true);

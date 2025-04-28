@@ -22,7 +22,6 @@ const fetchUser = async (token) => {
 const fetchAppointments = async (userId) => {
     try {
         const response = await axios.get(`${API_URL}/appointments/${userId}`);
-        console.log(response.data);
         return response.data.appointments || [];
     } catch (err) {
         // toast.info('No appointments found for this user.');

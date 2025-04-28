@@ -3,10 +3,22 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import API_URL from '../../../configuration/Api';
 import CustomPieChart from '../../../utils/custom/CustomPieChart';
-import { Users, Pill, ShoppingCart, Calendar, CheckCircle, XCircle, Clock } from 'lucide-react';
+import {
+    ResponsiveContainer,
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    Tooltip
+} from 'recharts';
+import { Calendar, CheckCircle, Clock, Pill, ShoppingCart, Users, XCircle } from 'lucide-react';
+
 
 export const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
+    const [defaultPagination, setDefaultPagination] = useState(1)
+    const [totalPage, setTotalPage] = useState(0);
+
     const [totalCount, setTotalCount] = useState({
         users: 0,
         medicine: 0,
@@ -20,6 +32,8 @@ export const AdminDashboard = () => {
     const [chartData, setChartData] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    console.log(chartData)
+
     async function getInvetoryByMedicine() {
         try {
             const res = await axios.get(`${API_URL}/inventory/details`);
@@ -30,11 +44,25 @@ export const AdminDashboard = () => {
         }
     }
 
+
+    function getNextInventory() {
+        if (defaultPagination < totalPage) {
+            setDefaultPagination(prev => prev + 1);
+        }
+    }
+
+    function getPrevInventory() {
+        if (defaultPagination > 1) {
+            setDefaultPagination(prev => prev - 1);
+        }
+    }
+
+
     useEffect(() => {
         getInvetoryByMedicine().then((res) => {
             const formatData = res.map((item) => ({
                 name: item._id.name,
-                value: item.totalQuantity,
+                unit: item.totalQuantity,
             }));
             setChartData(formatData);
         }).catch((err) => console.error(err));
@@ -45,9 +73,6 @@ export const AdminDashboard = () => {
             setLoading(true);
             try {
                 // Fetch Users
-                const usersRes = await axios.get(`${API_URL}/auth/users`);
-                setUsers(usersRes.data?.patients || []);
-                setTotalCount((prev) => ({ ...prev, users: usersRes.data?.patients.length || 0 }));
 
                 // Fetch Sales
                 const salesRes = await axios.get(`${API_URL}/sales`);
@@ -72,6 +97,26 @@ export const AdminDashboard = () => {
         }
         fetchData();
     }, []);
+
+
+    useEffect(() => {
+        fetchUsers(defaultPagination)
+            .then((usersRes) => {
+                setUsers(usersRes?.patients || []);
+                setTotalCount((prev) => ({ ...prev, users: usersRes?.totalPatients || 0 }));
+                setTotalPage(usersRes?.totalPages)
+            }).catch((err) => console.log("Error when fetching user", err))
+    }, [defaultPagination])
+
+    async function fetchUsers(defaultPagination) {
+        try {
+            const usersRes = await axios.get(`${API_URL}/auth/users/patients?page=${defaultPagination}`);
+            const data = await usersRes.data
+            return data
+        } catch (error) {
+            console.log("Error when fetching users", error)
+        }
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6">
@@ -152,7 +197,15 @@ export const AdminDashboard = () => {
                                 <h3 className="text-xl font-bold text-gray-800 mb-6">Inventory Distribution</h3>
                                 <div className="h-[300px]">
                                     {chartData.length > 0 ? (
-                                        <CustomPieChart data={chartData} />
+                                        <ResponsiveContainer width="100%" height={300}>
+                                            <BarChart data={chartData}>
+                                                <XAxis dataKey="name" />
+                                                <YAxis />
+                                                <Tooltip />
+                                                <Bar dataKey="unit" fill="#8884d8" />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+
                                     ) : (
                                         <div className="flex flex-col items-center justify-center h-full text-gray-500">
                                             <Pill size={24} className="mb-2" />
@@ -199,6 +252,29 @@ export const AdminDashboard = () => {
                                     </tbody>
                                 </table>
                             </div>
+                            {totalPage >= 1 && (
+                                <div className="p-6 flex justify-between items-center border-t border-gray-200">
+                                    <div className="text-sm text-gray-600">
+                                        Page {defaultPagination} of {totalPage}
+                                    </div>
+                                    <div className="flex gap-4">
+                                        <button
+                                            onClick={getPrevInventory}
+                                            disabled={defaultPagination === 1}
+                                            className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                                        >
+                                            Previous
+                                        </button>
+                                        <button
+                                            onClick={getNextInventory}
+                                            disabled={defaultPagination === totalPage}
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </>
                 )}

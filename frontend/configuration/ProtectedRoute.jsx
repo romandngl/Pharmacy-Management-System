@@ -26,7 +26,6 @@ export const ProtectedRoute = ({ children, isPublic = false, isProtected = false
         const checkUser = async () => {
             if (token) {
                 const userData = await fetchUser(token);
-                console.log("Userdata", userData.user);
                 setUser(userData);
             }
             setLoading(false);

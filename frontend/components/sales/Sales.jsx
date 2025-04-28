@@ -14,7 +14,6 @@ const Sales = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [role, setRole] = useState(null);
-    console.log("role",role)
     useEffect(() => {
         const fetchSales = async () => {
             setLoading(true);

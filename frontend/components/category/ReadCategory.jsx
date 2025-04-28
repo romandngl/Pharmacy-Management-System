@@ -22,14 +22,12 @@ const ReadCategory = () => {
     const [loading, setLoading] = useState(true);
 
 
-    console.log("totalPage", totalPage)
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
                 const categoriesData = await getAllCategories(defaultPagination);
-                console.log("Categories Data:", categoriesData);
                 setCategory(categoriesData.categories || []);
                 setTotalPage(categoriesData.totalPages || 0);
                 setTotalCategories(categoriesData.totalRecords || 0);

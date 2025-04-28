@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_URL from '../../../../configuration/Api';
 import { getDateString } from '../../../../utils/ModifyDate';
-import { Pencil, Plus, Pill } from 'lucide-react';
+import { Pencil, Plus, Pill, Trash } from 'lucide-react';
 import { toast } from 'react-toastify';
 import Toast from '../../../../components/toast/Toast';
 
@@ -65,6 +65,19 @@ export const AdminInventory = () => {
         setShowModal(true);
     };
 
+    const handleDelete = async (id) => {
+        console.log(id)
+        const isConfirmed = window.confirm('Are you sure you want to delete this inventory item?');
+        if (!isConfirmed) return
+        try {
+            const res = await axios.delete(`${API_URL}/inventory/${id}`);
+            toast.success(res?.data.message);
+            setReset(prev => !prev);
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to delete inventory item');
+        }
+    }
+
     const handleClose = () => {
         setShowModal(false);
         setFormData({ medicineId: '', quantity: '', medicineName: '', inventoryId: '' });
@@ -73,6 +86,8 @@ export const AdminInventory = () => {
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -154,12 +169,19 @@ export const AdminInventory = () => {
                                             inventory.map((item, index) => (
                                                 <tr
                                                     key={item._id}
-                                                    className="border-b hover:bg-gray-50 transition-colors duration-150"
+                                                    className={`border-b hover:bg-gray-50 transition-colors duration-150 ${new Date() > new Date(item.expiryDate)
+                                                            ? 'bg-red-100 text-red-700 font-medium'
+                                                            : 'text-gray-600'
+                                                        }`}
                                                 >
                                                     <td className="px-6 py-4 text-sm text-gray-600">{index + 1}</td>
                                                     <td className="px-6 py-4 text-sm text-gray-800 font-medium">{item.medicine?.name || 'N/A'}</td>
                                                     <td className="px-6 py-4 text-sm text-gray-600">{item.medicine?.category?.name || 'N/A'}</td>
-                                                    <td className="px-6 py-4 text-sm text-gray-600">{getDateString(item.expiryDate) || 'N/A'}</td>
+                                                    <td className="px-6 py-4 text-sm text-gray-600">
+                                                        {getDateString(item.expiryDate) || 'N/A'}
+                                                    </td>
+
+
                                                     <td className="px-6 py-4 text-sm text-gray-600">{item.quantity || 'N/A'}</td>
                                                     <td className="px-6 py-4 text-sm text-gray-600">{item.medicine?.reorderLevel || 'N/A'}</td>
                                                     <td className="px-6 py-4 text-sm text-gray-600">{getDateString(item.medicine?.createdAt) || 'N/A'}</td>
@@ -170,6 +192,13 @@ export const AdminInventory = () => {
                                                             title="Edit Inventory"
                                                         >
                                                             <Pencil size={20} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(item?._id)}
+                                                            className="p-2 text-blue-600 hover:text-blue-800 transition-colors duration-150"
+                                                            title="Edit Inventory"
+                                                        >
+                                                            <Trash size={20} />
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -264,7 +293,7 @@ export const AdminInventory = () => {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 

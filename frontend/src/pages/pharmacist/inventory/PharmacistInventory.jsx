@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_URL from '../../../../configuration/Api';
 import { getDateString } from '../../../../utils/ModifyDate';
-import { Pencil, Plus, Pill } from 'lucide-react';
+import { Pencil, Plus, Pill, Trash } from 'lucide-react';
 import { toast } from 'react-toastify';
 import Toast from '../../../../components/toast/Toast';
 
@@ -64,6 +64,19 @@ export const PharmacistInventory = () => {
         });
         setShowModal(true);
     };
+
+    const handleDelte = async (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this inventory item?");
+        if (!confirmDelete) return
+        try {
+            const res = await axios.delete(`${API_URL}/inventory/${id}`);
+            toast.success(res?.data.message);
+            setReset(prev => !prev);
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to delete inventory item');
+        }
+
+    }
 
     const handleClose = () => {
         setShowModal(false);
@@ -154,7 +167,10 @@ export const PharmacistInventory = () => {
                                             inventory.map((item, index) => (
                                                 <tr
                                                     key={item._id}
-                                                    className="border-b hover:bg-gray-50 transition-colors duration-150"
+                                                    className={`border-b hover:bg-gray-50 transition-colors duration-150 ${new Date() > new Date(item.expiryDate)
+                                                        ? 'bg-red-100 text-red-700 font-medium'
+                                                        : 'text-gray-600'
+                                                        }`}
                                                 >
                                                     <td className="px-6 py-4 text-sm text-gray-600">{index + 1}</td>
                                                     <td className="px-6 py-4 text-sm text-gray-800 font-medium">{item.medicine?.name || 'N/A'}</td>
@@ -170,6 +186,13 @@ export const PharmacistInventory = () => {
                                                             title="Edit Inventory"
                                                         >
                                                             <Pencil size={20} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelte(item._id)}
+                                                            className="p-2 text-blue-600 hover:text-blue-800 transition-colors duration-150"
+                                                            title="Edit Inventory"
+                                                        >
+                                                            <Trash size={20} />
                                                         </button>
                                                     </td>
                                                 </tr>
