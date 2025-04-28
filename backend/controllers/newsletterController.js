@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 
 const createAndSendNewsletter = async (req, res) => {
     try {
-        const { fullName, email, message, relatedType = null, relatedId = null } = req.body;
+        const { fullName, email, message, type = null, relatedId = null } = req.body;
 
         if (!fullName || !email || !message) {
             return res.status(400).json({ message: 'Full name, email, and message are required' });
@@ -27,7 +27,7 @@ const createAndSendNewsletter = async (req, res) => {
             fullName,
             email,
             message,
-            relatedType,
+            type,
             relatedId,
             read: false
         });

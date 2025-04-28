@@ -11,6 +11,29 @@ const getUserNotifications = async (req, res) => {
     }
 };
 
+const getNotificationsForPharmacist = async (req, res) => {
+    try {
+        const notifications = await Notification.find({
+            type: { $nin: ['sale', 'appointment'] }
+        }).sort({ createdAt: -1 });
+        res.status(200).json({ message: 'Notifications fetched for pharmacist', notifications });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching notifications', error: error.message });
+    }
+};
+
+const getAllNotificationsForAdmin = async (req, res) => {
+    try {
+        const notifications = await Notification.find({
+            type: { $nin: ['appointment'] }
+        }).sort({ createdAt: -1 });
+        res.status(200).json({ message: 'All notifications fetched for admin', notifications });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching notifications', error: error.message });
+    }
+};
+
+
 const markAsRead = async (req, res) => {
     try {
         const { notificationId } = req.params;
@@ -34,5 +57,7 @@ const deleteNotification = async (req, res) => {
 module.exports = {
     getUserNotifications,
     markAsRead,
-    deleteNotification
+    deleteNotification,
+    getNotificationsForPharmacist,
+    getAllNotificationsForAdmin
 };

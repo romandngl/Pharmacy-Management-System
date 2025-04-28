@@ -3,12 +3,12 @@ const Appointment = require('../models/Appointment');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 
-const createNotification = async (userId, message, relatedType = 'appointment', relatedId = null) => {
+const createNotification = async (userId, message, type = 'appointment', relatedId = null) => {
     try {
         await Notification.create({
-            user: userId,
+            userId,
             message,
-            relatedType,
+            type,
             relatedId
         });
     } catch (err) {
@@ -35,16 +35,11 @@ const createAppointment = async (req, res) => {
         await newAppointment.save();
 
         await createNotification(
-            patient,
+            newAppointment.patient.toString(),
             `Your appointment has been scheduled for ${date} at ${time}.`,
             'appointment',
             newAppointment._id
         );
-
-        await Notification.create({
-            user: patient,
-            message: `Your appointment has been scheduled for ${date} at ${time}.`
-        });
 
         res.status(201).json(newAppointment);
     } catch (error) {
@@ -90,7 +85,7 @@ const getAppointmentById = async (req, res) => {
 
 const getAppointmentsByUserId = async (req, res) => {
     try {
-        const appointments = await Appointment.find({ patient: req.params.userId }).populate('patient');
+        const appointments = await Appointment.find({ patient: req.params.userId }).populate('patient', '-password');
         if (!appointments || appointments.length === 0) {
             return res.status(404).json({ message: "No appointments found for this user" });
         }
@@ -105,11 +100,6 @@ const cancelAppointment = async (req, res) => {
     try {
         const appointment = await Appointment.findByIdAndUpdate(req.params.id, { status: 'canceled' }, { new: true });
         if (!appointment) return res.status(404).json({ message: "Appointment not found" });
-
-        await Notification.create({
-            user: appointment.patient,
-            message: `Your appointment scheduled for ${appointment.date} at ${appointment.time} has been canceled.`
-        });
 
         await createNotification(
             appointment.patient,

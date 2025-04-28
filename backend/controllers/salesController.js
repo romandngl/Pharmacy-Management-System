@@ -6,7 +6,7 @@ const Medicine = require('../models/Medicine');
 const Notification = require('../models/Notification');
 
 // Helper function to create notifications
-const createNotification = async (userId, message, relatedType, relatedId) => {
+const createNotification = async (userId, message, type, relatedId) => {
     try {
         const user = await User.findOne({ role: userId }); // Assuming 'admin' is a role
         if (!user) throw new Error(`User with role '${userId}' not found`);
@@ -14,7 +14,7 @@ const createNotification = async (userId, message, relatedType, relatedId) => {
         await Notification.create({
             userId: user._id,
             message,
-            relatedType,
+            type,
             relatedId
         });
     } catch (err) {
