@@ -24,7 +24,7 @@ const getMedicine = async (req, res) => {
     try {
         const { medicineId } = req.params;
         const page = parseInt(req.query.page) || 1; // Default to page 1
-        const limit = 10
+        const limit = 10;
         const skip = limit ? (page - 1) * limit : 0; // Skip calculation
 
         if (medicineId) {
@@ -49,13 +49,13 @@ const getMedicine = async (req, res) => {
             message: 'Medicines retrieved successfully',
             currentPage: page,
             totalPages,
+            totalRecords: totalMedicines,
             medicines
         });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
-
 
 
 // Add New Medicine
@@ -349,12 +349,8 @@ const generateStockReport = async (req, res) => {
 
 const generateDetailedStockReport = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; // Default to page 1
-        const limit = 10
-        const skip = limit ? (page - 1) * limit : 0; // Calculate skip value
-
-        // Aggregate inventory data
-        let inventoryAggregation = Inventory.aggregate([
+        // Aggregate inventory data without pagination
+        const inventoryAggregation = await Inventory.aggregate([
             {
                 $group: {
                     _id: "$medicine",
@@ -363,29 +359,16 @@ const generateDetailedStockReport = async (req, res) => {
             }
         ]);
 
-        // Apply pagination if limit is provided
-        if (limit) {
-            inventoryAggregation = inventoryAggregation.skip(skip).limit(limit);
-        }
-
-        const inventory = await inventoryAggregation;
-
-        if (inventory.length === 0) {
+        if (inventoryAggregation.length === 0) {
             return res.status(404).json({ message: "No inventory records found" });
         }
 
-        // Get total count (without pagination)
-        const totalRecords = await Inventory.countDocuments();
-        const totalPages = limit ? Math.ceil(totalRecords / limit) : 1;
-
         // Populate Medicine details
-        const report = await Medicine.populate(inventory, { path: "_id", select: "name category" });
+        const report = await Medicine.populate(inventoryAggregation, { path: "_id", select: "name category" });
 
         res.json({
             message: "Detailed Stock Report Generated",
-            currentPage: page,
-            totalPages,
-            totalRecords,
+            totalRecords: report.length,
             report
         });
 
@@ -393,6 +376,7 @@ const generateDetailedStockReport = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
 
 
 module.exports = {
