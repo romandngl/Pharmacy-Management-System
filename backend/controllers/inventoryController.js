@@ -67,7 +67,7 @@ const addMedicine = async (req, res) => {
             return res.status(400).json({ message: 'Valid price is required' });
         }
 
-        let medicine = await Medicine.findOne({ name, category });
+        let medicine = await Medicine.findOne({ name });
 
         if (medicine) {
             return res.status(400).json({ message: 'Medicine already exists' });
@@ -244,6 +244,37 @@ const updateInventory = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
+const deleteInventory = async (req, res) => {
+    try {
+        const { inventoryId } = req.params;
+
+        const inventory = await Inventory.findById(inventoryId);
+        if (!inventory) {
+            return res.status(404).json({ message: 'Inventory record not found' });
+        }
+
+        const medicineId = inventory.medicine;
+
+        await Inventory.findByIdAndDelete(inventoryId);
+
+        const totalStock = await Inventory.aggregate([
+            { $match: { medicine: medicineId } },
+            { $group: { _id: null, totalQuantity: { $sum: "$quantity" } } }
+        ]);
+
+        const stockLevel = totalStock.length > 0 ? totalStock[0].totalQuantity : 0;
+        await Medicine.findByIdAndUpdate(medicineId, { stockLevel });
+
+        const notificationMessage = `Inventory entry deleted for medicine. New stock level: ${stockLevel}.`;
+        await createNotification('admin', notificationMessage, 'inventory', inventoryId);
+
+        res.json({ message: 'Inventory deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 // Reorder Medicine (if stock is low)
 const reorderMedicine = async (req, res) => {
     try {
@@ -389,6 +420,7 @@ module.exports = {
 
     addToInventory,
     updateInventory,
+    deleteInventory,
     reorderMedicine,
     generateStockReport,
     generateDetailedStockReport

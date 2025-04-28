@@ -54,7 +54,6 @@ const createAppointment = async (req, res) => {
 
 const getAppointments = async (req, res) => {
     try {
-        // Get the 'page' and 'limit' parameters from the query
         const page = parseInt(req.query.page) || 1;
         const limit = 10
 

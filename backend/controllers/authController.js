@@ -68,5 +68,38 @@ const getAllUsernames = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, getUserProfile, getAllUsernames };
+const getPaginatedPatients = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const patients = await User.find({ role: 'patient' }, { name: 1, email: 1, role: 1 })
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
+        const totalPatients = await User.countDocuments({ role: 'patient' });
+
+        res.status(200).json({
+            patients,
+            page,
+            limit,
+            totalPages: Math.ceil(totalPatients / limit),
+            totalPatients
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Server error',
+            error: {
+                message: error.message,
+                stack: error.stack
+            }
+        });
+    }
+};
+
+
+
+module.exports = { registerUser, loginUser, getUserProfile, getAllUsernames, getPaginatedPatients };
 

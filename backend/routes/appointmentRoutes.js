@@ -6,8 +6,8 @@ router.post('/', createAppointment);
 router.get('/', getAppointments);
 
 router.get('/user/:userId', getAppointmentsByUserId);
-router.get('/status/:status', getAppointmentsByStatus); // Put this before /:id
-router.get('/:id', getAppointmentById);                 // Keep this at the bottom of the GETs
+router.get('/status/:status', getAppointmentsByStatus);
+router.get('/:id', getAppointmentById);                
 
 router.put('/:id/complete', completeAppointment);
 router.put('/:id/cancel', cancelAppointment);
