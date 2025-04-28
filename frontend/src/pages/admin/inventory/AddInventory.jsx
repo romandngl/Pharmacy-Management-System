@@ -24,7 +24,7 @@ export const AddInventory = () => {
     useEffect(() => {
         const fetchMedicines = async () => {
             try {
-                const response = await axios.get(`${API_URL}/medicine`);
+                const response = await axios.get(`${API_URL}/medicines`);
                 setMedicineIds(response?.data.medicines);
             } catch (err) {
                 setError('Failed to fetch medicines data.');

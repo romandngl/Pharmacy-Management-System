@@ -97,7 +97,7 @@ const PharmacistInventory = () => {
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Category</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">ExpiryDate</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Quantity</th>
-                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">StockLevel</th>
+                                    {/* <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">StockLevel</th> */}
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">ReorderLevel</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">CreatedAt</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">UpdatedAt</th>
@@ -111,9 +111,9 @@ const PharmacistInventory = () => {
                                             <td className="px-6 py-3 text-sm text-gray-700">{index + 1}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.name ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.category?.name ?? "N/A"}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.medicine.expiryDate) ?? "N/A"}</td>
+                                            <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item?.expiryDate) ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{item.quantity ?? "N/A"}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.stockLevel ?? "N/A"}</td>
+                                            {/* <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.stockLevel ?? "N/A"}</td> */}
                                             <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.reorderLevel ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.medicine.createdAt) ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.medicine.updatedAt) ?? "N/A"}</td>

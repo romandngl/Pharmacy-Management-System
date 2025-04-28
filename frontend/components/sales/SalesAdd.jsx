@@ -15,7 +15,7 @@ export const SalesAdd = () => {
   const [inventories, setInventories] = useState([]);
   
   useEffect(() => {
-    axios.get(`${API_URL}/medicine`)
+    axios.get(`${API_URL}/medicines`)
       .then((res) => setMedicines(res.data.medicines || []))
       .catch((err) => console.log(err));
 

@@ -11,11 +11,11 @@ import Toast from '../../../../components/toast/Toast';
 export const AdminInventory = () => {
     const navigate = useNavigate();
     const [inventory, setInventory] = useState([]);
-    const[reset,setReset]=useState(false);
+    const [reset, setReset] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [formData, setFormData] = useState({ medicineId: '', quantity: '',medicineName:'',inventoryId:'' });
+    const [formData, setFormData] = useState({ medicineId: '', quantity: '', medicineName: '', inventoryId: '' });
     useEffect(() => {
         const fetchInventory = async () => {
             try {
@@ -30,7 +30,7 @@ export const AdminInventory = () => {
         fetchInventory();
     }, [reset]);
 
-   
+
 
     const handleEdit = (item) => {
         setFormData({ medicineId: item.medicine._id, quantity: Number(item.quantity), medicineName: item.medicine.name, inventoryId: item._id });
@@ -52,13 +52,13 @@ export const AdminInventory = () => {
             const sendData = {
                 medicineId: formData.medicineId,
                 quantity: formData.quantity,
-                createdAt:formData.createdAt
+                createdAt: formData.createdAt
             }
-            const res = await axios.put(`${API_URL}/inventory/${formData.inventoryId}`,sendData);
+            const res = await axios.put(`${API_URL}/inventory/${formData.inventoryId}`, sendData);
             toast.success(res.data.message);
             setShowModal(false);
             setReset(!reset);
-            setFormData({ medicineId: '', quantity: '',medicineName: '', inventoryId: '' });
+            setFormData({ medicineId: '', quantity: '', medicineName: '', inventoryId: '' });
         } catch (error) {
             toast.error(error.response.data.message);
         }
@@ -71,7 +71,7 @@ export const AdminInventory = () => {
 
     return (
         <div className='w-full min-h-screen bg-gray-100'>
-              <Toast/>
+            <Toast />
             <div className="p-6">
                 {/* Cards Section */}
                 <div className="w-full bg-blue-500 flex justify-center items-center gap-6 mb-8 p-6 text-white rounded-lg shadow-sm">
@@ -98,7 +98,7 @@ export const AdminInventory = () => {
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Category</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">ExpiryDate</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Quantity</th>
-                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">StockLevel</th>
+                                    {/* <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">StockLevel</th> */}
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">ReorderLevel</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">CreatedAt</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">UpdatedAt</th>
@@ -112,15 +112,15 @@ export const AdminInventory = () => {
                                             <td className="px-6 py-3 text-sm text-gray-700">{index + 1}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.name ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.category?.name ?? "N/A"}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.medicine.expiryDate) ?? "N/A"}</td>
+                                            <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.expiryDate) ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{item.quantity ?? "N/A"}</td>
-                                            <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.stockLevel ?? "N/A"}</td>
+                                            {/* <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.stockLevel ?? "N/A"}</td> */}
                                             <td className="px-6 py-3 text-sm text-gray-700">{item.medicine.reorderLevel ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.medicine.createdAt) ?? "N/A"}</td>
                                             <td className="px-6 py-3 text-sm text-gray-700">{getDateString(item.medicine.updatedAt) ?? "N/A"}</td>
-                                            <td  className=" px-6 py-3 text-sm text-gray-700">
-                                                <button  onClick={e=>handleEdit(item)} className="text-blue-500 hover:text-blue-700">
-                                                <Pencil  size={20}/>
+                                            <td className=" px-6 py-3 text-sm text-gray-700">
+                                                <button onClick={e => handleEdit(item)} className="text-blue-500 hover:text-blue-700">
+                                                    <Pencil size={20} />
                                                 </button>
                                             </td>
                                         </tr>
