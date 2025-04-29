@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import API_URL from '../../configuration/Api';
@@ -24,14 +24,20 @@ export const PharmacistLayout = () => {
     const [notification, setNotification] = useState([]);
     const [showPopup, setShowPopup] = useState(false);
     const token = Cookies.get('token');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const checkUser = async () => {
             if (token) {
                 try {
                     const userData = await fetchUser(token);
+                    console.log(userData)
                     setUser(userData);
-                    const res = await axios.get(`${API_URL}/notifications/${userData?.user?.userId}`);
+                    if(userData?.user?.role !== "pharmacist"){
+                        toast.error('You are not authorized to access this page.');
+                        navigate('/'); 
+                    }
+                    const res = await axios.get(`${API_URL}/notifications/pharmacist`);
                     setNotification(res.data.notifications || []);
                 } catch (err) {
                     toast.error('Failed to fetch user data or notifications.');
@@ -126,7 +132,7 @@ export const PharmacistLayout = () => {
                                     className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
                                 >
                                     <DollarSign  size={20} />
-                                    <span className="ml-3">Sales</span>
+                                    <span className="ml-3">Invoice</span>
                                 </Link>
                             </li>
                         </ul>

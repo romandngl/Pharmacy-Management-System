@@ -117,13 +117,6 @@ const SalesDetailsPage = () => {
                         </div>
 
                         <div className="mt-6 flex justify-between items-center gap-4">
-                            <Link
-                                to="/admin/sales" // Adjust the route as needed
-                                className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors duration-200"
-                            >
-                                <ArrowLeft size={18} />
-                                Back to Sales
-                            </Link>
                             <button
                                 onClick={downloadPDF}
                                 className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"

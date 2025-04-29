@@ -14,6 +14,8 @@ const Sales = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [role, setRole] = useState(null);
+    const [totalRevenue, setTotalRevenue] = useState(0);
+    const user = localStorage.getItem('user');
     useEffect(() => {
         const fetchSales = async () => {
             setLoading(true);
@@ -31,7 +33,9 @@ const Sales = () => {
         fetchSales();
         (async () => {
             await fetchRole();
+            await getTotalRevenue()
         })()
+
 
     }, [page]);
 
@@ -57,6 +61,15 @@ const Sales = () => {
         }
     };
 
+    const getTotalRevenue = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/sales/all`);
+            setTotalRevenue(res?.data.totalRevenue)
+        } catch (error) {
+            console.log("Error when fetching total revenue", error)
+        }
+    }
+
     const getPrevSales = () => {
         if (page > 1) {
             setPage(prev => prev - 1);
@@ -68,6 +81,18 @@ const Sales = () => {
             setPage(prev => prev + 1);
         }
     };
+
+    const handleNaviage = (id) => {
+        const { role } = JSON.parse(user)
+        if (role === 'admin') {
+            navigate(`/admin/sales/${id}`);
+        } else if (role === 'pharmacist') {
+            navigate(`/pharmacist/sales/${id}`);
+        }
+        else {
+            toast.error("Invalid role")
+        }
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6">
@@ -128,7 +153,7 @@ const Sales = () => {
                                                     </td>
                                                     <td className="px-6 py-4 text-sm text-gray-600">
                                                         <button
-                                                            onClick={() => navigate(`/admin/sales/${sale._id}`)}
+                                                            onClick={() => handleNaviage(sale._id)}
                                                             className="p-2 text-blue-600 hover:text-blue-800 transition-colors duration-150"
                                                             title="View Sale Details"
                                                         >
@@ -153,22 +178,25 @@ const Sales = () => {
 
                             {/* Pagination */}
                             {totalPages >= 1 && (
-                                <div className="p-6 flex justify-between items-center border-t border-gray-200">
-                                    <div className="text-sm text-gray-600">
+                                <div className="flex items-center justify-between p-6 bg-white border-t border-gray-100 shadow-sm">
+                                    <div className="text-base text-gray-500">
                                         Page {page} of {totalPages}
                                     </div>
-                                    <div className="flex gap-4">
+                                    <div className="text-base font-semibold">
+                                        Total Revenue: <span className="text-green-600">Rs {totalRevenue}</span>
+                                    </div>
+                                    <div className="flex gap-2">
                                         <button
                                             onClick={getPrevSales}
                                             disabled={page === 1}
-                                            className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                                            className="px-3 py-1.5 text-base bg-gray-50 text-gray-600 rounded-md hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 ease-in-out"
                                         >
                                             Previous
                                         </button>
                                         <button
                                             onClick={getNextSales}
                                             disabled={page === totalPages}
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                                            className="px-3 py-1.5 text-base bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 ease-in-out"
                                         >
                                             Next
                                         </button>

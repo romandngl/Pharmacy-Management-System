@@ -41,7 +41,7 @@ export const ProtectedRoute = ({ children, isPublic = false, isProtected = false
     // Handle redirection for public routes (user with token should be redirected to the appropriate dashboard)
     if (isPublic && token && user) {
         const roleRedirects = {
-            patient: "/patient/dashboard",
+            patient: "/patient/",
             admin: "/admin/dashboard",
             pharmacist: "/pharmacist/dashboard",
         };

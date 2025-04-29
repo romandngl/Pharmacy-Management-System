@@ -73,6 +73,7 @@ export const PatientSchedule = () => {
             toast.success('Appointment scheduled successfully!');
             setDate('');
             setTime('');
+            location.reload();
         } catch (error) {
             toast.error(
                 error.response?.data?.message || 'Failed to schedule appointment. Please try again.'

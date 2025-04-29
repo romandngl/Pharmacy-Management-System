@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import API_URL from '../../configuration/Api';
 import Cookies from 'js-cookie';
-import { Pencil, Plus, Trash2, Tag } from 'lucide-react';
+import { Pencil, Plus, Trash2, Tag, Group } from 'lucide-react';
 import { toast } from 'react-toastify';
 import Toast from '../toast/Toast';
 
@@ -154,7 +154,7 @@ const ReadCategory = () => {
                 <div className="mb-8">
                     <div className="bg-white p-6 rounded-2xl shadow-lg flex items-center gap-4">
                         <div className="p-3 bg-blue-100 rounded-full">
-                            <Tag className="text-blue-600" size={24} />
+                            <Group  className="text-blue-600" size={24} />
                         </div>
                         <div>
                             <h3 className="text-lg font-semibold text-gray-600">Total Categories</h3>

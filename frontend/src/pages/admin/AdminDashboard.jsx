@@ -76,7 +76,7 @@ export const AdminDashboard = () => {
 
                 // Fetch Sales
                 const salesRes = await axios.get(`${API_URL}/sales`);
-                setTotalCount((prev) => ({ ...prev, sales: salesRes.data.sales.length || 0 }));
+                setTotalCount((prev) => ({ ...prev, sales: salesRes.data.totalSales || 0 }));
 
                 // Fetch Medicines
                 const medicinesRes = await axios.get(`${API_URL}/medicines`);

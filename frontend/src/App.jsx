@@ -35,6 +35,8 @@ import ViewAppointments from './pages/pharmacist/appointment/ViewAppointments';
 import { ViewAppointmentById } from './pages/pharmacist/appointment/ViewAppointmentById';
 import PharmacistSale from './pages/pharmacist/sale/PharmacistSale';
 import { PharmacistSaleAdd } from './pages/pharmacist/sale/PharmacistSaleAdd';
+import AdminAddPharmacist from './pages/admin/pharmacist/AdminAddPharmacist';
+import AdminPharmacist from './pages/admin/pharmacist/AdminPharmacist';
 function App() {
   const router = createBrowserRouter([
     {
@@ -69,10 +71,10 @@ function App() {
       path: "/patient",
       element: <ProtectedRoute isProtected={true}><PatientLayout />  </ProtectedRoute>,
       children: [
-        {
-          path: "/patient/dashboard", element:
-            <PatientDashboard />
-        },
+        // {
+        //   path: "/patient/dashboard", element:
+        //     <PatientDashboard />
+        // },
         {
           path: "/patient/schedule/add", element:
             <PatientSchedule />
@@ -118,6 +120,12 @@ function App() {
         {
           path: "/admin/sales/add", element: <AdminSalesAdd />
         },
+        {
+          path: "/admin/pharmacist/add", element: <AdminAddPharmacist />
+        },
+        {
+          path: "/admin/pharmacist/view", element: <AdminPharmacist />
+        }
       ]
     },
     {
@@ -159,6 +167,9 @@ function App() {
         },
         {
           path: "/pharmacist/sales/add", element: <PharmacistSaleAdd />
+        },
+        {
+          path: "/pharmacist/sales/:id", element: <SalesDetailsPage />
         }
       ]
     }

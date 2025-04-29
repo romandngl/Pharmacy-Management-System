@@ -33,6 +33,10 @@ export const PatientLayout = () => {
                 try {
                     const userData = await fetchUser(token);
                     setUser(userData);
+                    if (userData?.user?.role !== "patient") {
+                        toast.error('You are not authorized to access this page.');
+                        navigate('/');
+                    }
                     if (userData?.user?.userId) {
                         const res = await axios.get(`${API_URL}/notifications/${userData.user.userId}`);
                         setNotification(res.data.notifications || []);
@@ -84,7 +88,7 @@ export const PatientLayout = () => {
                                     to="/patient/schedule/add"
                                     className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
                                 >
-                                    <CalendarPlus2  size={20} />
+                                    <CalendarPlus2 size={20} />
                                     <span className="ml-3">Add Schedule</span>
                                 </Link>
                             </li>

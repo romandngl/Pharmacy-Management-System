@@ -21,10 +21,11 @@ const fetchUser = async (token) => {
 
 const fetchAppointments = async (userId) => {
     try {
-        const response = await axios.get(`${API_URL}/appointments/${userId}`);
-        return response.data.appointments || [];
+        const response = await axios.get(`${API_URL}/appointments/user/${userId}`);
+        return response.data || [];
     } catch (err) {
-        // toast.info('No appointments found for this user.');
+        toast.info('No appointments found for this user.');
+        return [];
     }
 };
 
@@ -56,6 +57,18 @@ export const PatientViewSchedule = () => {
             .finally(() => setLoading(false));
     }, [token]);
 
+    const getStatusColor = (status) => {
+        switch (status.toLowerCase()) {
+            case 'completed':
+                return 'bg-green-200';
+            case 'canceled':
+                return 'bg-red-200';
+            case 'scheduled':
+                return 'bg-yellow-200';
+            default:
+                return 'bg-gray-200';
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6">
@@ -81,19 +94,20 @@ export const PatientViewSchedule = () => {
                             <table className="w-full">
                                 <thead className="bg-gray-50">
                                     <tr>
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Id</th>
                                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Date</th>
                                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Time</th>
                                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Status</th>
-                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Patient Name</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
-                                    {appointments && appointments?.length > 0 ? (
-                                        appointments.map((appt) => (
+                                    {appointments && appointments.length > 0 ? (
+                                        appointments.map((appt, index) => (
                                             <tr
                                                 key={appt._id}
                                                 className="hover:bg-gray-50 transition-colors duration-150"
                                             >
+                                                <td className="px-6 py-4 text-sm text-gray-600">{index + 1}</td>
                                                 <td className="px-6 py-4 text-sm text-gray-800 font-medium">
                                                     {new Date(appt.date).toLocaleDateString('en-US', {
                                                         year: 'numeric',
@@ -103,10 +117,9 @@ export const PatientViewSchedule = () => {
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-600">{appt.time || 'N/A'}</td>
                                                 <td className="px-6 py-4 text-sm text-gray-600 capitalize">
-                                                    {appt.status || 'N/A'}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-gray-600">
-                                                    {appt.patient?.name || 'N/A'}
+                                                    <span className={`inline-block px-3 py-1 rounded-full ${getStatusColor(appt.status)}`}>
+                                                        {appt.status || 'N/A'}
+                                                    </span>
                                                 </td>
                                             </tr>
                                         ))

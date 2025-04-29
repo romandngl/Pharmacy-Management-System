@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_URL from '../../../../configuration/Api';
 import { getDateString } from '../../../../utils/ModifyDate';
-import { Pencil, Plus, Pill, Trash } from 'lucide-react';
+import { Pencil, Plus, Pill, Trash, ShoppingBasket } from 'lucide-react';
 import { toast } from 'react-toastify';
 import Toast from '../../../../components/toast/Toast';
 
@@ -120,7 +120,7 @@ export const AdminInventory = () => {
                 <div className="mb-8">
                     <div className="bg-white p-6 rounded-2xl shadow-lg flex items-center gap-4">
                         <div className="p-3 bg-green-100 rounded-full">
-                            <Pill className="text-green-600" size={24} />
+                            <ShoppingBasket className="text-green-600" size={24} />
                         </div>
                         <div>
                             <h3 className="text-lg font-semibold text-gray-600">Total Inventory</h3>
@@ -170,8 +170,8 @@ export const AdminInventory = () => {
                                                 <tr
                                                     key={item._id}
                                                     className={`border-b hover:bg-gray-50 transition-colors duration-150 ${new Date() > new Date(item.expiryDate)
-                                                            ? 'bg-red-100 text-red-700 font-medium'
-                                                            : 'text-gray-600'
+                                                        ? 'bg-red-100 text-red-700 font-medium'
+                                                        : 'text-gray-600'
                                                         }`}
                                                 >
                                                     <td className="px-6 py-4 text-sm text-gray-600">{index + 1}</td>

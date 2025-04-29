@@ -82,7 +82,7 @@ export const SignInPage = () => {
 
     function redirect(user_role) {
         if (user_role === "patient") {
-            return "/patient/dashboard";
+            return "/patient/schedule/view";
         } else if (user_role === "admin") {
             return "/admin/dashboard";
         }

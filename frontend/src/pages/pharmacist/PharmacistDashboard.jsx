@@ -25,7 +25,7 @@ export const PharmacistDashboard = () => {
                 ]);
                 setExpired(expiredRes.data.inventory || []);
                 setTotalMedicines(medicinesRes.data.medicines?.length || 0);
-                setTotalSales(salesRes.data.totalRecords || 0);
+                setTotalSales(salesRes.data.totalSales || 0);
                 // Note: Total Patients is not fetched as no API endpoint is provided.
                 // Assuming expired inventory length as a placeholder for total patients.
                 setTotalPatients(expiredRes.data.inventory?.length || 0);

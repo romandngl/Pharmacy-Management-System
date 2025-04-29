@@ -27,7 +27,6 @@ const PharmacistAppointments = () => {
 
     const navigate = useNavigate();
 
-
     useEffect(() => {
         setLoading(true);
         fetchAppointments(defaultPagination)
@@ -177,7 +176,7 @@ const PharmacistAppointments = () => {
                                                     <button
                                                         onClick={() => handleViwe(appointment._id)}
                                                         className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-150"
-                                                        title="Complete Appointment"
+                                                        title="View Appointment"
                                                     >
                                                         <Eye size={18} />
                                                     </button>

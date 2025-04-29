@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import API_URL from '../../configuration/Api';
@@ -14,6 +14,8 @@ import {
     ShoppingBasket,
     LogOut,
     X,
+    User,
+    Group,
 } from 'lucide-react';
 import Toast from '../../components/toast/Toast';
 
@@ -23,6 +25,7 @@ export const AdminLayout = () => {
     const [notification, setNotification] = useState([]);
     const [showPopup, setShowPopup] = useState(false);
     const token = Cookies.get('token');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const checkUser = async () => {
@@ -30,7 +33,11 @@ export const AdminLayout = () => {
                 try {
                     const userData = await fetchUser(token);
                     setUser(userData);
-                    const res = await axios.get(`${API_URL}/notifications/${userData?.user?.userId}`);
+                    if (userData?.user?.role !== "admin") {
+                        toast.error('You are not authorized to access this page.');
+                        navigate('/');
+                    }
+                    const res = await axios.get(`${API_URL}/notifications/admin`);
                     setNotification(res.data.notifications || []);
                 } catch (err) {
                     toast.error('Failed to fetch user data or notifications.');
@@ -106,8 +113,17 @@ export const AdminLayout = () => {
                                     to="/admin/category"
                                     className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
                                 >
-                                    <ListCollapse size={20} />
+                                    <Group size={20}/>
                                     <span className="ml-3">Category</span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    to="/admin/pharmacist/view"
+                                    className="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                                >
+                                    <User size={20} />
+                                    <span className="ml-3">Pharmacist</span>
                                 </Link>
                             </li>
                             <li>
