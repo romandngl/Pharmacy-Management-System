@@ -55,6 +55,7 @@ const getAppointments = async (req, res) => {
         const skip = (page - 1) * limit;
 
         const appointments = await Appointment.find()
+            .sort({ createdAt: -1 }) 
             .skip(skip)
             .limit(limit)
             .populate('patient');
@@ -116,13 +117,26 @@ const cancelAppointment = async (req, res) => {
 
 const completeAppointment = async (req, res) => {
     try {
-        const appointment = await Appointment.findByIdAndUpdate(req.params.id, { status: 'completed' }, { new: true });
+        const appointment = await Appointment.findByIdAndUpdate(
+            req.params.id, 
+            { status: 'completed' }, 
+            { new: true }
+        );
         if (!appointment) return res.status(404).json({ message: "Appointment not found" });
+
+        await createNotification(
+            appointment.patient,
+            `Your appointment scheduled for ${appointment.date} at ${appointment.time} has been completed.`,
+            'appointment',
+            appointment._id
+        );
+
         res.status(200).json(appointment);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 const getAppointmentsByStatus = async (req, res) => {
     try {
